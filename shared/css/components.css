@@ -718,7 +718,10 @@
 }
 
 .page-content--home,
-.page-content--constellations,
+.page-content--constellations {
+  position: relative;
+}
+
 .page-content--records,
 .page-content--ranking,
 .page-content--my {
@@ -960,7 +963,6 @@
   object-position: center;
   background: transparent;
   mix-blend-mode: screen;
-  filter: brightness(1.03) saturate(1.03) drop-shadow(0 0 14px rgba(63, 124, 255, 0.24));
 }
 
 .home-constellation.is-complete .home-constellation__image,
@@ -1165,7 +1167,6 @@
   object-fit: contain;
   background: transparent;
   mix-blend-mode: screen;
-  filter: brightness(1.03) saturate(1.03) drop-shadow(0 0 12px rgba(63, 124, 255, 0.2));
 }
 
 .catalog-card.is-locked .catalog-card__frame {
@@ -1333,7 +1334,6 @@
   object-fit: contain;
   background: transparent;
   mix-blend-mode: screen;
-  filter: brightness(1.05) saturate(1.04) contrast(1.08);
 }
 
 .constellation-overlay__title {
