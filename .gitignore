@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+*.log
+
+.vercel/
+.env
+.env.*
+
+demo/
+
+/private/tmp/
+/tmp/

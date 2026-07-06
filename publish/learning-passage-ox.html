@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="../" />
+    <title>OX 퀴즈</title>
+    <link rel="stylesheet" href="shared/css/base.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css" />
+    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <script>
+      (function () {
+        if (window.location.protocol !== "file:") return;
+        var path = decodeURIComponent(window.location.pathname).replace(/\\/g, "/");
+        var marker = "/miri-textbook/";
+        var index = path.lastIndexOf(marker);
+        if (index === -1) return;
+        var relative = path.slice(index + marker.length);
+        window.location.replace("http://127.0.0.1:8000/" + relative + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="publish-body learning-publish-body theme-light" data-page="learning-passage-ox">
+    <div class="learning-preview">
+      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="OX 퀴즈 화면">
+        <header class="learning-header">
+          <div class="learning-header__inner">
+            <div class="learning-header__left">
+              <a class="learning-icon-button" href="publish/learning-passage-cloze.html" aria-label="이전 학습으로 돌아가기">
+                <img src="asset/icons/common/back.svg" alt="" />
+              </a>
+              <div class="learning-curriculum" data-curriculum-label></div>
+            </div>
+            <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/dark.svg" alt="" /></span>
+            </button>
+          </div>
+        </header>
+
+        <section class="learning-content">
+          <div class="learning-content__inner learning-content__inner--quiz-top">
+            <div class="learning-step-info">
+              <strong>OX 퀴즈</strong>
+              <span>맞으면 O, 틀리면 X를 골라주세요.</span>
+            </div>
+
+            <section class="question-block question-block--ox">
+              <div class="learning-progress question-block__progress" data-ox-progress></div>
+              <article class="learning-card question-prompt-card question-prompt-card--ox">
+                <h1 class="question-prompt-card__title question-prompt-card__title--ox" data-ox-question></h1>
+              </article>
+              <div class="ox-grid" data-ox-choices>
+                <button class="ox-choice" type="button" data-ox-value="O" aria-label="O 선택">
+                  <span class="ox-choice__icon ox-choice__icon--o" aria-hidden="true"></span>
+                  <span class="sr-only">O</span>
+                </button>
+                <button class="ox-choice" type="button" data-ox-value="X" aria-label="X 선택">
+                  <span class="ox-choice__icon ox-choice__icon--x" aria-hidden="true"></span>
+                  <span class="sr-only">X</span>
+                </button>
+              </div>
+            </section>
+
+          </div>
+        </section>
+
+        <div class="learning-overlay-layer">
+          <section class="bottom-sheet" hidden data-ox-sheet>
+            <div class="bottom-sheet__panel">
+              <div class="bottom-sheet__handle"></div>
+              <div class="bottom-sheet__status" data-ox-status></div>
+              <p class="bottom-sheet__copy" data-ox-copy></p>
+              <a class="bottom-sheet__cta" href="publish/learning-passage-mc.html" data-ox-cta>다음 학습으로</a>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706c"></script>
+  </body>
+</html>

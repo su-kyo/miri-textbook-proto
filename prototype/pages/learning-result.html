@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="../../" />
+    <title>프로토타입 학습 결과</title>
+    <link rel="stylesheet" href="shared/css/base.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css" />
+    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <script>
+      (function () {
+        if (window.location.protocol !== "file:") return;
+        var path = decodeURIComponent(window.location.pathname).replace(/\\/g, "/");
+        var marker = "/miri-textbook/";
+        var index = path.lastIndexOf(marker);
+        if (index === -1) return;
+        var relative = path.slice(index + marker.length);
+        window.location.replace("http://127.0.0.1:8000/" + relative + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="prototype-body learning-publish-body theme-light" data-page="learning-result" data-mode="prototype">
+    <div class="learning-preview">
+      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="프로토타입 학습 결과 화면">
+        <header class="learning-header">
+          <div class="learning-header__inner">
+            <div class="learning-header__left">
+              <a class="learning-icon-button" href="prototype/pages/learning-complete.html" aria-label="이전 화면으로 돌아가기" data-result-back-link>
+                <img src="asset/icons/common/back.svg" alt="" />
+              </a>
+              <div class="learning-header__title">학습 결과</div>
+            </div>
+            <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/dark.svg" alt="" /></span>
+            </button>
+          </div>
+        </header>
+
+        <section class="learning-content">
+          <div class="learning-content__inner learning-content__inner--result">
+            <section class="result-panel">
+              <div class="result-panel__title">
+                <h1 data-result-title></h1>
+                <p data-result-date></p>
+              </div>
+
+              <div class="result-tabs">
+                <button class="result-tabs__button is-active" type="button" data-result-tab="summary">학습 결과</button>
+                <button class="result-tabs__button" type="button" data-result-tab="wrong-words">틀린 어휘</button>
+              </div>
+
+              <div class="result-panel__body" data-result-panel="summary">
+                <section class="result-summary">
+                  <article class="learning-card result-summary__card">
+                    <span class="result-summary__label">정답</span>
+                    <strong class="result-summary__value is-correct" data-result-correct></strong>
+                  </article>
+                  <article class="learning-card result-summary__card">
+                    <span class="result-summary__label">오답</span>
+                    <strong class="result-summary__value is-wrong" data-result-wrong></strong>
+                  </article>
+                </section>
+
+                <section class="result-stage-list">
+                  <h2 class="result-stage-list__title">단계별 결과</h2>
+                  <div data-stage-list></div>
+                </section>
+              </div>
+
+              <div class="result-panel__body" hidden data-result-panel="wrong-words">
+                <h2 class="result-panel__section-title" data-result-wrong-title></h2>
+                <div class="wrong-word-list" data-wrong-words></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706d"></script>
+  </body>
+</html>

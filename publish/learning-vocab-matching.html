@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="../" />
+    <title>짝맞추기</title>
+    <link rel="stylesheet" href="shared/css/base.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css" />
+    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <script>
+      (function () {
+        if (window.location.protocol !== "file:") return;
+        var path = decodeURIComponent(window.location.pathname).replace(/\\/g, "/");
+        var marker = "/miri-textbook/";
+        var index = path.lastIndexOf(marker);
+        if (index === -1) return;
+        var relative = path.slice(index + marker.length);
+        window.location.replace("http://127.0.0.1:8000/" + relative + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="publish-body learning-publish-body theme-light" data-page="learning-vocab-matching">
+    <div class="learning-preview">
+      <main class="learning-shell learning-shell--header-40 learning-shell--wide" aria-label="짝맞추기 학습 화면">
+        <header class="learning-header">
+          <div class="learning-header__inner">
+            <div class="learning-header__left">
+              <a class="learning-icon-button" href="publish/learning-vocab-card.html" aria-label="이전 학습으로 돌아가기">
+                <img src="asset/icons/common/back.svg" alt="" />
+              </a>
+              <div class="learning-curriculum" data-curriculum-label></div>
+            </div>
+            <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/dark.svg" alt="" /></span>
+            </button>
+          </div>
+        </header>
+
+        <section class="learning-content">
+          <div class="learning-content__inner learning-content__inner--matching">
+            <div class="learning-step-info matching-step-info">
+              <strong>짝맞추기</strong>
+              <span>낱말이나 뜻을 먼저 누르고, 알맞은 짝을 골라요.</span>
+            </div>
+
+            <section class="matching-stage" aria-label="낱말과 뜻 짝맞추기">
+              <div class="matching-stage__panel">
+                <section class="matching-board" data-matching-board>
+                  <div class="matching-board__column" data-matching-words></div>
+                  <svg class="matching-board__lines" data-matching-lines preserveAspectRatio="none"></svg>
+                  <div class="matching-board__column" data-matching-meanings></div>
+                </section>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <footer class="learning-footer">
+          <div class="learning-footer__inner">
+            <button class="learning-footer__cta" type="button" aria-disabled="true" data-footer-cta>다음 학습으로</button>
+          </div>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706c"></script>
+  </body>
+</html>

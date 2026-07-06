@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="thumb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #022c36;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 18.0259px;
+      }
+
+      .cls-2 {
+        fill: #e0e0e0;
+      }
+    </style>
+  </defs>
+  <ellipse class="cls-2" cx="200" cy="218.589" rx="182.3226" ry="108.5806"/>
+  <path class="cls-1" d="M89.9443,236.3387c0-19.6057,15.8936-35.4993,35.4993-35.4993s35.4993,15.8936,35.4993,35.4993M310.0557,236.3387c0-19.6057-15.8936-35.4993-35.4993-35.4993s-35.4993,15.8936-35.4993,35.4993"/>
+</svg>

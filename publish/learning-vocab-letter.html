@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="../" />
+    <title>글자 맞추기</title>
+    <link rel="stylesheet" href="shared/css/base.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css" />
+    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <script>
+      (function () {
+        if (window.location.protocol !== "file:") return;
+        var path = decodeURIComponent(window.location.pathname).replace(/\\/g, "/");
+        var marker = "/miri-textbook/";
+        var index = path.lastIndexOf(marker);
+        if (index === -1) return;
+        var relative = path.slice(index + marker.length);
+        window.location.replace("http://127.0.0.1:8000/" + relative + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="publish-body learning-publish-body theme-light" data-page="learning-vocab-letter">
+    <div class="learning-preview">
+      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="글자 맞추기 학습 화면">
+        <header class="learning-header">
+          <div class="learning-header__inner">
+            <div class="learning-header__left">
+              <a class="learning-icon-button" href="publish/learning-vocab-matching.html" aria-label="이전 학습으로 돌아가기">
+                <img src="asset/icons/common/back.svg" alt="" />
+              </a>
+              <div class="learning-curriculum" data-curriculum-label></div>
+            </div>
+            <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/dark.svg" alt="" /></span>
+            </button>
+          </div>
+        </header>
+
+        <section class="learning-content">
+          <div class="learning-content__inner learning-content__inner--quiz-top learning-content__inner--letter">
+            <div class="learning-step-info letter-step-info">
+              <strong data-letter-title>글자 맞추기</strong>
+              <span data-letter-description></span>
+            </div>
+
+            <section class="letter-screen" aria-label="글자 맞추기 문제 영역">
+              <div class="learning-progress letter-progress" data-letter-progress></div>
+
+              <article class="learning-card letter-question-card" data-letter-card></article>
+
+              <div class="letter-answer-stage">
+                <div class="letter-meaning-reveal" hidden data-letter-meaning-reveal>
+                  <div class="letter-meaning-reveal__chip">뜻</div>
+                  <p class="letter-meaning-reveal__text" data-letter-solved-meaning></p>
+                </div>
+
+                <div class="letter-tiles" data-letter-tiles></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <div class="learning-overlay-layer">
+          <section class="bottom-sheet letter-feedback-sheet" hidden data-letter-sheet>
+            <div class="bottom-sheet__panel">
+              <div class="bottom-sheet__handle"></div>
+              <div class="bottom-sheet__status">
+                <img src="asset/icons/common/rocket.svg" alt="" />
+                <span>정답!</span>
+              </div>
+              <p class="bottom-sheet__copy" hidden data-letter-sheet-copy></p>
+              <button class="bottom-sheet__cta" type="button" data-letter-sheet-cta>다음 학습으로</button>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706c"></script>
+  </body>
+</html>

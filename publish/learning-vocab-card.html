@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="../" />
+    <title>단어 카드</title>
+    <link rel="stylesheet" href="shared/css/base.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css" />
+    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <script>
+      (function () {
+        if (window.location.protocol !== "file:") {
+          return;
+        }
+        var path = decodeURIComponent(window.location.pathname).replace(/\\/g, "/");
+        var marker = "/miri-textbook/";
+        var index = path.lastIndexOf(marker);
+        if (index === -1) {
+          return;
+        }
+        var relative = path.slice(index + marker.length);
+        window.location.replace("http://127.0.0.1:8000/" + relative + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="publish-body learning-publish-body theme-light" data-page="learning-vocab-card">
+    <div class="learning-preview">
+      <main class="learning-shell learning-shell--header-40 learning-shell--wide" aria-label="단어 카드 학습 화면">
+        <header class="learning-header">
+          <div class="learning-header__inner">
+            <div class="learning-header__left">
+              <a class="learning-icon-button" href="publish/home.html" aria-label="홈으로 돌아가기">
+                <img src="asset/icons/common/back.svg" alt="" />
+              </a>
+              <div class="learning-curriculum" data-curriculum-label></div>
+            </div>
+            <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
+              <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/dark.svg" alt="" /></span>
+            </button>
+          </div>
+        </header>
+
+        <section class="learning-content">
+          <div class="learning-content__inner">
+            <div class="learning-step-info">
+              <strong>단어 카드</strong>
+              <span>오늘 배울 단어를 확인해요</span>
+            </div>
+
+            <section class="word-card-stage" aria-label="단어 카드 캐러셀">
+              <div class="word-card-proto-viewport" data-card-viewport>
+                <div class="word-card-proto-track" data-card-track></div>
+              </div>
+
+              <p class="word-card-stage__pagination">
+                <span data-pagination-current>1</span>
+                <span> / </span>
+                <span data-pagination-total>10</span>
+              </p>
+            </section>
+          </div>
+        </section>
+
+        <footer class="learning-footer">
+          <div class="learning-footer__inner">
+            <button class="learning-footer__cta" type="button" aria-disabled="true" data-footer-cta>다음 학습으로</button>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <div class="learning-modal" hidden data-hanja-modal>
+      <div class="learning-modal__scrim" data-hanja-close></div>
+      <section class="learning-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hanja-modal-title">
+        <header class="learning-modal__header">
+          <div class="learning-modal__title" id="hanja-modal-title">한자 상세</div>
+          <button class="learning-modal__close" type="button" aria-label="한자 상세 닫기" data-hanja-close>×</button>
+        </header>
+        <div class="learning-modal__body">
+          <p class="learning-modal__word" data-modal-word></p>
+          <div class="learning-modal__list" data-hanja-list></div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706f"></script>
+  </body>
+</html>

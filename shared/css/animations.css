@@ -1,0 +1,59 @@
+@import url("./tokens.css");
+
+.fade-in {
+  animation: fade-in 180ms ease;
+}
+
+.slide-up {
+  animation: slide-up 220ms ease;
+}
+
+.flip-ready {
+  transform-style: preserve-3d;
+  transition: transform 280ms ease;
+}
+
+.flip-ready.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.shake {
+  animation: shake 280ms ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-8px);
+  }
+
+  75% {
+    transform: translateX(8px);
+  }
+}

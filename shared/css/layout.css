@@ -1,0 +1,120 @@
+@import url("./tokens.css");
+
+.prototype-body,
+.publish-body,
+.docs-body {
+  min-height: 100vh;
+}
+
+.page-root {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  height: 100dvh;
+  padding: 0;
+}
+
+.docs-body .page-root {
+  padding: 24px 16px 32px;
+}
+
+.miri-shell {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  border-radius: 0;
+  background: #080a32;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.miri-shell--compact {
+  width: min(100%, 390px);
+  min-height: 844px;
+  margin: 24px 16px;
+  border-radius: 36px;
+  box-shadow: var(--shadow-panel);
+}
+
+.docs-canvas {
+  width: min(100%, 1120px);
+}
+
+.page-stack {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.page-topbar__title {
+  font-size: var(--type-subheading-size);
+  line-height: var(--type-subheading-line);
+  font-weight: 700;
+}
+
+.page-topbar__meta {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 800;
+}
+
+.page-content {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+
+.page-content--home,
+.page-content--constellations,
+.page-content--records,
+.page-content--ranking,
+.page-content--my {
+  padding-bottom: 0;
+}
+
+.page-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.page-bottom-nav {
+  position: relative;
+  flex: 0 0 auto;
+  padding-top: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #080a32;
+  z-index: 8;
+}
+
+.docs-section-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+@media (max-width: 480px) {
+  .miri-shell--compact {
+    width: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

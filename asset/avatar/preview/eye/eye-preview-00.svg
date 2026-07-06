@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="thumb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #e0e0e0;
+      }
+
+      .cls-2 {
+        fill: #023139;
+      }
+
+      .cls-3 {
+        fill: #f9f9f7;
+      }
+
+      .cls-4 {
+        fill: #022e35;
+      }
+    </style>
+  </defs>
+  <ellipse class="cls-1" cx="200" cy="218.589" rx="182.3226" ry="108.5806"/>
+  <g>
+    <ellipse class="cls-4" cx="277.0653" cy="218.589" rx="54.4509" ry="45.4208" transform="translate(-7.9 426.7743) rotate(-74.422)"/>
+    <ellipse class="cls-2" cx="122.9347" cy="218.589" rx="45.4208" ry="54.4509" transform="translate(-54.1863 41.0439) rotate(-15.578)"/>
+    <ellipse class="cls-3" cx="131.937" cy="197.038" rx="16.7065" ry="20.028" transform="translate(-48.0681 42.6698) rotate(-15.578)"/>
+    <ellipse class="cls-3" cx="290.1596" cy="197.038" rx="16.7065" ry="20.028" transform="translate(-42.2558 85.1606) rotate(-15.578)"/>
+  </g>
+</svg>
