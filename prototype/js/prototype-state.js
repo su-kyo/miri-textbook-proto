@@ -1,5 +1,5 @@
 import { createViewStore } from "../../shared/js/view-state.js";
-import { prepareInitialState } from "../../shared/js/page-renderer.js?v=20260706g";
+import { prepareInitialState } from "../../shared/js/page-renderer.js?v=20260707a";
 
 const STORAGE_KEY = "miri-textbook-prototype-state";
 const PROTOTYPE_DEBUG_DEFAULTS = {

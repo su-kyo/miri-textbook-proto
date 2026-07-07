@@ -1,9 +1,9 @@
 # Constellations Cleanup Notes
 
 ## 정리 결과
-- 기준표의 88개 별자리를 기준으로 `asset/constellations/{id}/{id}.png` 구조로 재배치했습니다.
+- 기준표의 88개 별자리를 기준으로 원본은 `asset/constellations/{id}/{id}.png`로 보관하고, 화면용 자산은 `asset/constellations/{id}/{id}.webp`로 사용합니다.
 - 공백이 있던 파일명은 모두 kebab-case로 정리했습니다.
-- 구조도 파일은 아직 생성하지 않았고, JSON에는 `{id}_map.png` 경로만 미리 넣었습니다.
+- 일부 별자리는 `hidden` 원본이 없어서 화면에서는 본 이미지 WebP로 fallback 되도록 정리했습니다.
 - 기존 분류 기준 문서는 `data/constellations-grade-type-reference.md`로 이동했습니다.
 
 ## 삭제한 파일

@@ -5,9 +5,9 @@ import {
   getConstellationById,
   getInitialHomeConstellations,
   loadConstellationCatalog,
-} from "./constellation-adapter.js?v=20260706d";
+} from "./constellation-adapter.js?v=20260707a";
 import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260706b";
-import { resolveProjectUrl } from "./data-loader.js?v=20260706b";
+import { resolveProjectUrl } from "./data-loader.js?v=20260707a";
 import {
   getHanjaCharacterRows,
   getLearningProgress,
@@ -56,9 +56,6 @@ function safeImageAttributes() {
 const FLOW_TIMER_KEYS = [
   "toast-charge",
   "charge-complete",
-  "card-toast",
-  "card-back",
-  "card-flipping",
   "card-front",
 ];
 
@@ -245,7 +242,9 @@ function buildHomeConstellation(card) {
 
   return `
     <button class="home-constellation home-constellation-slot ${card.completed ? "is-complete" : "is-locked"} ${phaseClass}" type="button" ${card.completed ? `data-constellation-open="${card.id}"` : ""} data-constellation-id="${card.id}">
-      <img class="home-constellation__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
+      <span class="constellation-blend-surface home-constellation__media" aria-hidden="true">
+        <img class="home-constellation__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
+      </span>
       <div class="home-constellation__progress home-progress-badge">
         <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
         <div class="home-constellation__segments">
@@ -264,7 +263,15 @@ function buildCatalogConstellation(card) {
   return `
     <button class="catalog-card ${card.completed ? "is-complete" : "is-locked"}" type="button" ${card.completed ? `data-constellation-open="${card.id}"` : ""}>
       <div class="catalog-card__frame">
-        ${card.completed ? `<img class="catalog-card__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />` : ""}
+        ${
+          card.completed
+            ? `
+              <span class="constellation-blend-surface catalog-card__media" aria-hidden="true">
+                <img class="catalog-card__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
+              </span>
+            `
+            : ""
+        }
         ${card.completed ? "" : `<img class="catalog-card__lock" src="${resolveProjectUrl("asset/icons/constellation/slot-lock.svg")}" alt="" />`}
       </div>
       ${card.completed ? `<div class="catalog-card__chip">${escapeHtml(card.nameKo)}</div>` : ""}
@@ -509,16 +516,7 @@ function buildConstellationOverlay(card, state = {}) {
     return "";
   }
 
-  const overlayFace = card.overlayFace ?? "front";
-  const isAcquirePreview =
-    state.pendingReplacementSlotId === card.id &&
-    ["card-back-visible", "card-flipping", "card-front-visible"].includes(state.acquisitionState);
-  const faceClass =
-    overlayFace === "back"
-      ? "is-back"
-      : overlayFace === "flipping"
-        ? "is-flipping"
-        : "is-front";
+  const isAcquirePreview = state.pendingReplacementSlotId === card.id && state.acquisitionState === "card-front-visible";
   const showAcquireActions = isAcquirePreview && state.acquisitionState === "card-front-visible";
   const showCloseButton = !isAcquirePreview;
   const imageSrc = isAcquirePreview
@@ -526,10 +524,8 @@ function buildConstellationOverlay(card, state = {}) {
     : card.completed
       ? card.illustration ?? card.asset ?? card.hidden
       : card.hidden ?? card.asset;
-  const modalLayerClass =
-    isAcquirePreview && state.acquisitionState !== "card-back-visible" ? "modal-layer" : "modal-layer fade-in";
-  const overlayCardClass =
-    isAcquirePreview && state.acquisitionState !== "card-back-visible" ? "overlay-card" : "overlay-card slide-up";
+  const modalLayerClass = isAcquirePreview ? "modal-layer" : "modal-layer fade-in";
+  const overlayCardClass = "overlay-card";
 
   return `
     <div class="${modalLayerClass}">
@@ -537,17 +533,12 @@ function buildConstellationOverlay(card, state = {}) {
       <div class="${overlayCardClass}">
         <div class="constellation-overlay">
           ${showCloseButton ? `<button class="constellation-overlay__close" data-modal-close="constellation">×</button>` : ""}
-          <div class="constellation-card ${faceClass}">
+          <div class="constellation-card">
             <div class="constellation-card__inner">
-              <div class="constellation-card-back">
-                <img class="constellation-card-back__frame" src="${resolveProjectUrl("asset/ui/constellation/card-back.png")}" alt="" />
-              </div>
               <div class="constellation-card-front constellation-overlay__card">
                 <img class="constellation-overlay__frame" src="${resolveProjectUrl("asset/ui/constellation/card-front.png")}" alt="" />
                 ${card.duplicateCount > 1 ? `<span class="constellation-overlay__badge">×${card.duplicateCount}</span>` : ""}
-                <div class="constellation-overlay__image-frame">
-                  <img class="constellation-overlay__image" src="${resolveProjectUrl(imageSrc)}" alt="" ${safeImageAttributes()} />
-                </div>
+                <img class="constellation-overlay__image" src="${resolveProjectUrl(imageSrc)}" alt="" ${safeImageAttributes()} />
                 <div class="constellation-overlay__title">${escapeHtml(card.nameKo)}</div>
                 <div class="constellation-overlay__copy">
                   <div class="constellation-overlay__tagline">${escapeHtml(card.tagline ?? "")}</div>
@@ -558,11 +549,11 @@ function buildConstellationOverlay(card, state = {}) {
                 ${
                   showAcquireActions
                     ? `
-                      <div class="constellation-overlay__acquire-actions">
-                        <button class="constellation-overlay__receive-button" type="button" data-modal-close="constellation">카드 받기</button>
-                        <p class="constellation-overlay__acquire-caption">별자리 도감에서 확인할 수 있어요!</p>
-                      </div>
-                    `
+                        <div class="constellation-overlay__acquire-actions">
+                          <button class="constellation-overlay__receive-button" type="button" data-modal-close="constellation">카드 받기</button>
+                          <p class="constellation-overlay__acquire-caption">별자리 도감에서 확인할 수 있어요!</p>
+                        </div>
+                      `
                     : ""
                 }
               </div>
@@ -1152,7 +1143,7 @@ function buildDocsBody() {
           <h3>Asset Structure</h3>
           <div class="docs-asset-list" style="margin-top:16px;">
             <div><strong>avatar</strong><span>head / forehead / eye / mouth</span></div>
-            <div><strong>constellations</strong><span>{id}/{id}.png, {id}_hidden.png</span></div>
+            <div><strong>constellations</strong><span>{id}/{id}.webp, optional {id}_hidden.webp</span></div>
             <div><strong>icons</strong><span>common / home / learning / constellation</span></div>
             <div><strong>backgrounds</strong><span>home</span></div>
             <div><strong>ui</strong><span>constellation / decorative</span></div>
@@ -1197,7 +1188,9 @@ function buildDocsBody() {
           <h3>Home / Constellation Preview</h3>
           <div class="docs-preview-grid" style="margin-top:16px;">
             <div class="home-constellation is-complete">
-              <img class="home-constellation__image" src="${resolveProjectUrl("asset/constellations/gemini/gemini.png")}" alt="" />
+              <span class="constellation-blend-surface home-constellation__media" aria-hidden="true">
+                <img class="home-constellation__image" src="${resolveProjectUrl("asset/constellations/gemini/gemini.webp")}" alt="" />
+              </span>
               <div class="home-constellation__progress">
                 <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
                 <div class="home-constellation__segments">
@@ -1210,7 +1203,9 @@ function buildDocsBody() {
             </div>
             <div class="catalog-card is-complete">
               <div class="catalog-card__frame">
-                <img class="catalog-card__image" src="${resolveProjectUrl("asset/constellations/circinus/circinus.png")}" alt="" />
+                <span class="constellation-blend-surface catalog-card__media" aria-hidden="true">
+                  <img class="catalog-card__image" src="${resolveProjectUrl("asset/constellations/circinus/circinus.webp")}" alt="" />
+                </span>
               </div>
               <div class="catalog-card__chip">컴퍼스자리</div>
             </div>
@@ -1385,7 +1380,11 @@ function wireHomeEvents(root, store) {
   root.querySelectorAll("[data-constellation-open]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.getAttribute("data-constellation-open");
+      const homeContent = root.querySelector(".page-content--home");
       const constellationContent = root.querySelector(".page-content--constellations");
+      if (homeContent) {
+        root.dataset.homeScrollTop = String(homeContent.scrollTop);
+      }
       if (constellationContent) {
         root.dataset.constellationScrollTop = String(constellationContent.scrollTop);
       }
@@ -1637,38 +1636,24 @@ export function startHomePrototypeAcquisition(store, explicitTargetId = null) {
     });
   }, 1200);
 
-  setFlowTimer("card-back", () => {
-    store.update((state) => ({
-      ...state,
-      activeToast: null,
-      acquisitionState: "card-back-visible",
-      activeConstellationId: targetId,
-      constellationOverlayFace: "back",
-      pendingReplacementSlotId: targetId,
-    }));
-  }, 1880);
-
-  setFlowTimer("card-flipping", () => {
-    store.update((state) => ({
-      ...state,
-      acquisitionState: "card-flipping",
-      constellationOverlayFace: "flipping",
-    }));
-  }, 2420);
-
   setFlowTimer("card-front", () => {
     store.update((state) => ({
       ...state,
+      activeToast: null,
       acquisitionState: "card-front-visible",
+      activeConstellationId: targetId,
       constellationOverlayFace: "front",
+      pendingReplacementSlotId: targetId,
     }));
-  }, 3080);
+  }, 1880);
 }
 
 export async function renderPage({ pageId, mode, mount, store, renderDebugPanels, constellationDebugState = null }) {
   const lesson = await getLessonMeta();
   const state = store.getState();
+  const existingHomeContent = mount.querySelector(".page-content--home");
   const existingConstellationContent = mount.querySelector(".page-content--constellations");
+  const retainedHomeScrollTop = existingHomeContent?.scrollTop ?? Number(mount.dataset.homeScrollTop || 0);
   const retainedConstellationScrollTop =
     existingConstellationContent?.scrollTop ?? Number(mount.dataset.constellationScrollTop || 0);
   state.avatarMarkup = await buildAvatarMarkup(state.avatar);
@@ -1733,6 +1718,17 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
         return;
       }
       nextConstellationContent.scrollTop = Number(retainedConstellationScrollTop) || 0;
+    });
+  }
+
+  if (pageId === "home") {
+    mount.dataset.homeScrollTop = String(retainedHomeScrollTop || 0);
+    requestAnimationFrame(() => {
+      const nextHomeContent = mount.querySelector(".page-content--home");
+      if (!nextHomeContent) {
+        return;
+      }
+      nextHomeContent.scrollTop = Number(retainedHomeScrollTop) || 0;
     });
   }
 

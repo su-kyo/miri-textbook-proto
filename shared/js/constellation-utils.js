@@ -35,7 +35,7 @@ export function buildProgressSegments(requiredLight, obtainedLight) {
 }
 
 export function getConstellationAsset(item, completed) {
-  return completed ? item.illustration : item.hidden;
+  return completed ? item.illustration : item.hidden ?? item.illustration;
 }
 
 export function buildDuplicateCount(percent, random = Math.random) {

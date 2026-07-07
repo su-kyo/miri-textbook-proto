@@ -1,6 +1,6 @@
 import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260706g";
 import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260706g";
-import { renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260706g";
+import { renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260707a";
 import { createPrototypeStore } from "./prototype-state.js";
 import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js";
 import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js";
