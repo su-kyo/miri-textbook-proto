@@ -312,6 +312,11 @@
     transform 180ms ease;
 }
 
+.learning-footer__cta.is-invisible {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .learning-footer__cta.is-ready,
 .learning-footer__cta:not([aria-disabled="true"]) {
   opacity: 1;

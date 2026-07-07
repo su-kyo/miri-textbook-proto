@@ -286,6 +286,13 @@ function buildHanjaModal(word) {
   }
 
   const characters = getHanjaCharacterRows(word);
+  const formatStrokeCount = (value) => {
+    if (value === null || value === undefined || value === "") {
+      return "";
+    }
+
+    return String(value).endsWith("획") ? String(value) : `${value}획`;
+  };
   return `
     <div class="modal-layer fade-in">
       <div class="modal-backdrop" data-modal-close="hanja"></div>
@@ -308,8 +315,8 @@ function buildHanjaModal(word) {
                   </div>
                   <div class="hanja-group__meta">
                     <div class="hanja-group__meta-row"><span>부수</span><strong>${escapeHtml(character.radical)}</strong></div>
-                    <div class="hanja-group__meta-row"><span>총 획수</span><strong>${escapeHtml(character.totalStrokes ? `${character.totalStrokes}획` : "")}</strong></div>
-                    <div class="hanja-group__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(character.strokesExceptRadical ? `${character.strokesExceptRadical}획` : "")}</strong></div>
+                    <div class="hanja-group__meta-row"><span>총 획수</span><strong>${escapeHtml(formatStrokeCount(character.totalStrokes))}</strong></div>
+                    <div class="hanja-group__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(formatStrokeCount(character.strokesExceptRadical))}</strong></div>
                   </div>
                 </div>
               `,

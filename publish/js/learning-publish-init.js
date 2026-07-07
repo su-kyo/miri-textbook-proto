@@ -153,6 +153,17 @@ function closeBottomSheet(sheet) {
   }, BOTTOM_SHEET_TRANSITION_MS);
 }
 
+function setFooterGhostVisibility(button, visible) {
+  if (!button) {
+    return;
+  }
+
+  button.hidden = false;
+  button.classList.toggle("is-invisible", !visible);
+  button.setAttribute("aria-hidden", visible ? "false" : "true");
+  button.tabIndex = visible ? 0 : -1;
+}
+
 function isInternalLearningHref(href = "") {
   return /^\/?(publish\/|prototype\/pages\/)/.test(href);
 }
@@ -361,14 +372,26 @@ function highlightMeaningSound(text = "") {
   return `${escapeHtml(parts.join(" "))} <strong>${last}</strong>`;
 }
 
+function formatStrokeCount(value) {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  return String(value).endsWith("획") ? String(value) : `${value}획`;
+}
+
+function hasDisplayValue(value) {
+  return value !== null && value !== undefined && value !== "";
+}
+
 function buildHanjaModalRowsMarkup(source) {
   return getHanjaCharacterRows(source)
     .map((entry) => {
       const meta = [
         entry.radical ? `<div class="hanja-modal__meta-row"><span>부수</span><strong>${escapeHtml(entry.radical)}</strong></div>` : "",
-        entry.totalStrokes ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(entry.totalStrokes)}</strong></div>` : "",
-        entry.strokesExceptRadical
-          ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(entry.strokesExceptRadical)}</strong></div>`
+        hasDisplayValue(entry.totalStrokes) ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(formatStrokeCount(entry.totalStrokes))}</strong></div>` : "",
+        hasDisplayValue(entry.strokesExceptRadical)
+          ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(formatStrokeCount(entry.strokesExceptRadical))}</strong></div>`
           : "",
       ]
         .filter(Boolean)
@@ -891,6 +914,18 @@ async function initVocabMatching() {
     matchedIds: new Set(),
     selectedWordId: null,
     selectedMeaningId: null,
+    ignoreClickUntil: 0,
+    drag: {
+      pointerId: null,
+      startSide: null,
+      startId: null,
+      startX: 0,
+      startY: 0,
+      currentX: null,
+      currentY: null,
+      hoverId: null,
+      active: false,
+    },
   };
   let errorTimer = null;
   let resizeRaf = 0;
@@ -936,6 +971,146 @@ async function initVocabMatching() {
     state.selectedMeaningId = null;
   }
 
+  function resetDrag() {
+    state.drag.pointerId = null;
+    state.drag.startSide = null;
+    state.drag.startId = null;
+    state.drag.startX = 0;
+    state.drag.startY = 0;
+    state.drag.currentX = null;
+    state.drag.currentY = null;
+    state.drag.hoverId = null;
+    state.drag.active = false;
+  }
+
+  function getOppositeSide(side) {
+    return side === "word" ? "meaning" : "word";
+  }
+
+  function getButtonBySide(side, id) {
+    if (!id) {
+      return null;
+    }
+
+    if (side === "word") {
+      return wordsRoot.querySelector(`[data-word-id="${id}"]`);
+    }
+
+    return meaningsRoot.querySelector(`[data-meaning-id="${id}"]`);
+  }
+
+  function getDotBySide(side, id) {
+    const button = getButtonBySide(side, id);
+    return button?.querySelector(side === "word" ? ".matching-pill__dot" : ".matching-meaning__dot") ?? null;
+  }
+
+  function getDotCenter(dot, boardRect) {
+    const rect = dot.getBoundingClientRect();
+    return {
+      x: rect.left - boardRect.left + rect.width / 2,
+      y: rect.top - boardRect.top + rect.height / 2,
+    };
+  }
+
+  function buildCurvePath(x1, y1, x2, y2) {
+    const midX = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+  }
+
+  function activateDrag() {
+    if (state.drag.active || !state.drag.startId || !state.drag.startSide) {
+      return;
+    }
+
+    state.drag.active = true;
+    clearSelection();
+    if (state.drag.startSide === "word") {
+      state.selectedWordId = state.drag.startId;
+    } else {
+      state.selectedMeaningId = state.drag.startId;
+    }
+  }
+
+  function updateDragHover(side, id) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    if (side !== getOppositeSide(state.drag.startSide) || state.matchedIds.has(id)) {
+      return;
+    }
+
+    if (state.drag.hoverId === id) {
+      return;
+    }
+
+    state.drag.hoverId = id;
+    render();
+  }
+
+  function clearDragHover(side, id) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    if (side !== getOppositeSide(state.drag.startSide) || state.drag.hoverId !== id) {
+      return;
+    }
+
+    state.drag.hoverId = null;
+    render();
+  }
+
+  function resolveDragHoverFromPoint(clientX, clientY) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    const oppositeSide = getOppositeSide(state.drag.startSide);
+    const target = document.elementFromPoint(clientX, clientY);
+    const button =
+      oppositeSide === "word"
+        ? target?.closest("[data-word-id]")
+        : target?.closest("[data-meaning-id]");
+    const nextId =
+      oppositeSide === "word"
+        ? button?.dataset.wordId ?? null
+        : button?.dataset.meaningId ?? null;
+
+    state.drag.hoverId = nextId && !state.matchedIds.has(nextId) ? nextId : null;
+  }
+
+  function drawPreviewLine(boardRect) {
+    if (!state.drag.active || !state.drag.startSide || !state.drag.startId) {
+      return "";
+    }
+
+    const startDot = getDotBySide(state.drag.startSide, state.drag.startId);
+    if (!startDot) {
+      return "";
+    }
+
+    const start = getDotCenter(startDot, boardRect);
+    const hoverDot = state.drag.hoverId
+      ? getDotBySide(getOppositeSide(state.drag.startSide), state.drag.hoverId)
+      : null;
+    const end = hoverDot
+      ? getDotCenter(hoverDot, boardRect)
+      : state.drag.currentX === null || state.drag.currentY === null
+        ? null
+        : {
+            x: state.drag.currentX - boardRect.left,
+            y: state.drag.currentY - boardRect.top,
+          };
+
+    if (!end) {
+      return "";
+    }
+
+    const lineColor = pairColorById.get(state.drag.startId) ?? "var(--learning-brand-secondary)";
+    return `<path class="matching-board__line matching-board__line--preview" style="--matching-line-color: ${lineColor};" d="${buildCurvePath(start.x, start.y, end.x, end.y)}" />`;
+  }
+
   function drawLines() {
     const boardRect = board.getBoundingClientRect();
     const width = Math.max(1, Math.round(boardRect.width));
@@ -956,14 +1131,18 @@ async function initVocabMatching() {
         const y1 = wordRect.top - boardRect.top + wordRect.height / 2;
         const x2 = meaningRect.left - boardRect.left + meaningRect.width / 2;
         const y2 = meaningRect.top - boardRect.top + meaningRect.height / 2;
-        const midX = (x1 + x2) / 2;
         const lineColor = pairColorById.get(id) ?? "var(--learning-status-success)";
 
-        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
+        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="${buildCurvePath(x1, y1, x2, y2)}" />`;
       })
-      .join("");
+      .filter(Boolean);
 
-    svg.innerHTML = lines;
+    const previewLine = drawPreviewLine(boardRect);
+    if (previewLine) {
+      lines.push(previewLine);
+    }
+
+    svg.innerHTML = lines.join("");
     svg.querySelectorAll(".matching-board__line").forEach((path) => {
       const lineId = path.dataset.lineId;
       const length = path.getTotalLength();
@@ -1033,6 +1212,81 @@ async function initVocabMatching() {
     setError(wordId, meaningId);
   }
 
+  function beginDragCandidate(side, id, event) {
+    if (state.matchedIds.has(id)) {
+      return;
+    }
+
+    state.drag.pointerId = event.pointerId;
+    state.drag.startSide = side;
+    state.drag.startId = id;
+    state.drag.startX = event.clientX;
+    state.drag.startY = event.clientY;
+    state.drag.currentX = event.clientX;
+    state.drag.currentY = event.clientY;
+    state.drag.hoverId = null;
+    state.drag.active = false;
+  }
+
+  function updateDrag(event) {
+    if (state.drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    state.drag.currentX = event.clientX;
+    state.drag.currentY = event.clientY;
+
+    if (!state.drag.active) {
+      const distance = Math.hypot(event.clientX - state.drag.startX, event.clientY - state.drag.startY);
+      if (distance > 8) {
+        activateDrag();
+      }
+    }
+
+    if (!state.drag.active) {
+      return;
+    }
+
+    resolveDragHoverFromPoint(event.clientX, event.clientY);
+    render();
+  }
+
+  function finishDrag(event) {
+    if (state.drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const wasActive = state.drag.active;
+    const startSide = state.drag.startSide;
+    const startId = state.drag.startId;
+
+    if (wasActive) {
+      resolveDragHoverFromPoint(event.clientX, event.clientY);
+    }
+
+    const hoverId = state.drag.hoverId;
+    resetDrag();
+
+    if (!wasActive) {
+      return;
+    }
+
+    state.ignoreClickUntil = performance.now() + 240;
+
+    if (!hoverId || !startSide || !startId) {
+      clearSelection();
+      render();
+      return;
+    }
+
+    if (startSide === "word") {
+      tryMatch(startId, hoverId);
+      return;
+    }
+
+    tryMatch(hoverId, startId);
+  }
+
   function handleWordSelect(wordId) {
     if (state.matchedIds.has(wordId)) {
       return;
@@ -1073,7 +1327,37 @@ async function initVocabMatching() {
     render();
   }
 
+  wordsRoot.querySelectorAll("[data-word-id]").forEach((node) => {
+    const wordId = node.dataset.wordId;
+    node.addEventListener("pointerdown", (event) => {
+      beginDragCandidate("word", wordId, event);
+    });
+    node.addEventListener("pointerenter", () => {
+      updateDragHover("word", wordId);
+    });
+    node.addEventListener("pointerleave", () => {
+      clearDragHover("word", wordId);
+    });
+  });
+
+  meaningsRoot.querySelectorAll("[data-meaning-id]").forEach((node) => {
+    const meaningId = node.dataset.meaningId;
+    node.addEventListener("pointerdown", (event) => {
+      beginDragCandidate("meaning", meaningId, event);
+    });
+    node.addEventListener("pointerenter", () => {
+      updateDragHover("meaning", meaningId);
+    });
+    node.addEventListener("pointerleave", () => {
+      clearDragHover("meaning", meaningId);
+    });
+  });
+
   document.addEventListener("click", (event) => {
+    if (performance.now() < state.ignoreClickUntil) {
+      return;
+    }
+
     const wordButton = event.target.closest("[data-word-id]");
     if (wordButton && wordsRoot.contains(wordButton)) {
       handleWordSelect(wordButton.dataset.wordId);
@@ -1114,6 +1398,10 @@ async function initVocabMatching() {
 
   const resizeObserver = new ResizeObserver(refreshLines);
   resizeObserver.observe(board);
+
+  window.addEventListener("pointermove", updateDrag);
+  window.addEventListener("pointerup", finishDrag);
+  window.addEventListener("pointercancel", finishDrag);
 
   render();
 }
@@ -1261,7 +1549,7 @@ async function initVocabLetter() {
   function render() {
     const question = currentQuestion();
     title.textContent = "글자 맞추기";
-    description.textContent = "글자를 눌러 단어를 완성해요.";
+    description.textContent = "예문을 보고 어떤 단어인지 추리해보세요.";
     progress.innerHTML = buildProgressStateMarkup(buildProgressStates());
 
     card.classList.toggle("letter-question-card--lower", question.layout === "meaning");
@@ -1712,13 +2000,16 @@ async function initPassageOx() {
   const progress = document.querySelector("[data-ox-progress]");
   const prompt = document.querySelector("[data-ox-question]");
   const sheet = document.querySelector("[data-ox-sheet]");
+  const sheetPanel = sheet?.querySelector(".bottom-sheet__panel");
   const status = document.querySelector("[data-ox-status]");
   const copy = document.querySelector("[data-ox-copy]");
   const choices = document.querySelector("[data-ox-choices]");
   const cta = document.querySelector("[data-ox-cta]");
+  const explanationToggle = document.querySelector("[data-explanation-toggle]");
   const state = {
     currentIndex: 0,
     solved: false,
+    sheetDismissed: false,
     shakingValue: null,
     disabledValues: new Map(),
   };
@@ -1739,7 +2030,19 @@ async function initPassageOx() {
     const question = currentQuestion();
     const isLast = state.currentIndex === questions.length - 1;
 
-    progress.innerHTML = buildProgressDots(state.currentIndex + 1, questions.length);
+    progress.innerHTML = buildProgressStateMarkup(
+      questions.map((_, index) => {
+        if (index < state.currentIndex) {
+          return "complete";
+        }
+
+        if (index === state.currentIndex) {
+          return state.solved ? "complete" : "active";
+        }
+
+        return "";
+      }),
+    );
     prompt.textContent = question.statement;
     cta.textContent = isLast ? "다음 학습으로" : "다음 문제";
     cta.setAttribute("href", isLast ? hrefWithTheme(pageHref("learning-passage-mc")) : "#");
@@ -1782,13 +2085,33 @@ async function initPassageOx() {
   function render() {
     renderFrame();
     renderChoices();
+    if (explanationToggle) {
+      setFooterGhostVisibility(explanationToggle, state.solved && state.sheetDismissed);
+    }
 
-    if (state.solved) {
+    if (state.solved && !state.sheetDismissed) {
       openBottomSheet(sheet);
     } else {
       closeBottomSheet(sheet);
     }
   }
+
+  if (explanationToggle) {
+    setFooterGhostVisibility(explanationToggle, false);
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!state.solved || state.sheetDismissed || !sheet.classList.contains("is-open") || !sheetPanel) {
+      return;
+    }
+
+    if (sheetPanel.contains(event.target) || event.target.closest("[data-explanation-toggle]")) {
+      return;
+    }
+
+    state.sheetDismissed = true;
+    render();
+  });
 
   document.addEventListener("click", (event) => {
     const ctaButton = event.target.closest("[data-ox-cta]");
@@ -1801,6 +2124,7 @@ async function initPassageOx() {
       if (state.currentIndex < questions.length - 1) {
         state.currentIndex += 1;
         state.solved = false;
+        state.sheetDismissed = false;
         state.shakingValue = null;
         setBottomSheetStatus(status, "");
         setBottomSheetCopy(copy, "");
@@ -1809,6 +2133,13 @@ async function initPassageOx() {
       }
 
       window.location.href = hrefWithTheme(pageHref("learning-passage-mc"));
+      return;
+    }
+
+    const explanationButton = event.target.closest("[data-explanation-toggle]");
+    if (explanationButton && explanationToggle === explanationButton && state.solved) {
+      state.sheetDismissed = false;
+      render();
       return;
     }
 
@@ -1826,6 +2157,7 @@ async function initPassageOx() {
 
     if (value === question.answer) {
       state.solved = true;
+      state.sheetDismissed = false;
       setBottomSheetStatus(status, "정답!");
       setBottomSheetCopy(copy, question.explanation);
       render();
@@ -1857,12 +2189,15 @@ async function initPassageMc() {
   const prompt = document.querySelector("[data-passage-mc-question]");
   const options = document.querySelector("[data-passage-mc-options]");
   const sheet = document.querySelector("[data-passage-mc-sheet]");
+  const sheetPanel = sheet?.querySelector(".bottom-sheet__panel");
   const status = document.querySelector("[data-passage-mc-status]");
   const copy = document.querySelector("[data-passage-mc-copy]");
   const cta = document.querySelector("[data-passage-mc-cta]");
+  const explanationToggle = document.querySelector("[data-explanation-toggle]");
   const state = {
     currentIndex: 0,
     solved: false,
+    sheetDismissed: false,
     shakingOption: null,
     disabledOptions: new Map(),
   };
@@ -1922,13 +2257,33 @@ async function initPassageMc() {
   function render() {
     renderFrame();
     renderOptions();
+    if (explanationToggle) {
+      setFooterGhostVisibility(explanationToggle, state.solved && state.sheetDismissed);
+    }
 
-    if (state.solved) {
+    if (state.solved && !state.sheetDismissed) {
       openBottomSheet(sheet);
     } else {
       closeBottomSheet(sheet);
     }
   }
+
+  if (explanationToggle) {
+    setFooterGhostVisibility(explanationToggle, false);
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!state.solved || state.sheetDismissed || !sheet.classList.contains("is-open") || !sheetPanel) {
+      return;
+    }
+
+    if (sheetPanel.contains(event.target) || event.target.closest("[data-explanation-toggle]")) {
+      return;
+    }
+
+    state.sheetDismissed = true;
+    render();
+  });
 
   document.addEventListener("click", (event) => {
     const ctaButton = event.target.closest("[data-passage-mc-cta]");
@@ -1941,6 +2296,7 @@ async function initPassageMc() {
       if (state.currentIndex < questions.length - 1) {
         state.currentIndex += 1;
         state.solved = false;
+        state.sheetDismissed = false;
         state.shakingOption = null;
         setBottomSheetStatus(status, "");
         setBottomSheetCopy(copy, "");
@@ -1949,6 +2305,13 @@ async function initPassageMc() {
       }
 
       window.location.href = hrefWithTheme(pageHref("learning-complete"));
+      return;
+    }
+
+    const explanationButton = event.target.closest("[data-explanation-toggle]");
+    if (explanationButton && explanationToggle === explanationButton && state.solved) {
+      state.sheetDismissed = false;
+      render();
       return;
     }
 
@@ -1966,6 +2329,7 @@ async function initPassageMc() {
 
     if (option === question.answer) {
       state.solved = true;
+      state.sheetDismissed = false;
       setBottomSheetStatus(status, "정답!");
       setBottomSheetCopy(copy, question.explanation || question.answer);
       render();

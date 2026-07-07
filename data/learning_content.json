@@ -35,23 +35,23 @@
         "나는 부모님에게서 독립한 뒤에야 내가 원하는 대로 내 인생을 설계할 수 있게 됐다."
       ],
       "hanjaDetail": {
-        "available": false,
-        "reviewNeeded": true,
-        "reason": "영상에는 한자 상세 모달 구조는 보이지만, 이 단어의 부수/획수 데이터는 노출되지 않았습니다.",
+        "available": true,
+        "reviewNeeded": false,
+        "reason": "한자 상세 모달용 부수/획수 정보를 정리했습니다.",
         "characters": [
           {
             "char": "設",
             "meaningSound": "베풀 설",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "言",
+            "totalStrokes": 11,
+            "strokesExceptRadical": 4
           },
           {
             "char": "計",
             "meaningSound": "셀 계",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "言",
+            "totalStrokes": 9,
+            "strokesExceptRadical": 2
           }
         ]
       }
@@ -100,30 +100,30 @@
         "오월이 되자 나무들이 저마다의 초록색을 뽐내며 서 있다."
       ],
       "hanjaDetail": {
-        "available": false,
-        "reviewNeeded": true,
-        "reason": "영상에는 이 단어의 한자 상세 부수/획수 데이터가 노출되지 않았습니다.",
+        "available": true,
+        "reviewNeeded": false,
+        "reason": "한자 상세 모달용 부수/획수 정보를 정리했습니다.",
         "characters": [
           {
             "char": "草",
             "meaningSound": "풀 초",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "艸",
+            "totalStrokes": 9,
+            "strokesExceptRadical": 6
           },
           {
             "char": "綠",
             "meaningSound": "푸를 록",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "糸",
+            "totalStrokes": 14,
+            "strokesExceptRadical": 8
           },
           {
             "char": "色",
             "meaningSound": "빛 색",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "色",
+            "totalStrokes": 6,
+            "strokesExceptRadical": 0
           }
         ]
       }
@@ -152,23 +152,23 @@
         "나는 귀가 시간이 정해진 것을 제외한다면 기숙사 생활에 만족한다."
       ],
       "hanjaDetail": {
-        "available": false,
-        "reviewNeeded": true,
-        "reason": "영상에는 이 단어의 한자 상세 부수/획수 데이터가 노출되지 않았습니다.",
+        "available": true,
+        "reviewNeeded": false,
+        "reason": "한자 상세 모달용 부수/획수 정보를 정리했습니다.",
         "characters": [
           {
             "char": "除",
             "meaningSound": "덜 제",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "阜",
+            "totalStrokes": 10,
+            "strokesExceptRadical": 7
           },
           {
             "char": "外",
             "meaningSound": "바깥 외",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "夕",
+            "totalStrokes": 5,
+            "strokesExceptRadical": 2
           }
         ]
       }
@@ -196,23 +196,23 @@
         "이 가수는 가창력이 뛰어난 반면 춤 실력이 부족하다."
       ],
       "hanjaDetail": {
-        "available": false,
-        "reviewNeeded": true,
-        "reason": "영상에는 이 단어의 한자 상세 부수/획수 데이터가 노출되지 않았습니다.",
+        "available": true,
+        "reviewNeeded": false,
+        "reason": "한자 상세 모달용 부수/획수 정보를 정리했습니다.",
         "characters": [
           {
             "char": "反",
             "meaningSound": "돌이킬 반",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "又",
+            "totalStrokes": 4,
+            "strokesExceptRadical": 2
           },
           {
             "char": "面",
             "meaningSound": "낯 면",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "面",
+            "totalStrokes": 9,
+            "strokesExceptRadical": 0
           }
         ]
       }
@@ -228,23 +228,23 @@
         "담당 의사는 내게 단백질이 부족하다며 단백질 섭취를 늘릴 것을 권했다."
       ],
       "hanjaDetail": {
-        "available": false,
-        "reviewNeeded": true,
-        "reason": "영상에는 이 단어의 한자 상세 부수/획수 데이터가 노출되지 않았습니다.",
+        "available": true,
+        "reviewNeeded": false,
+        "reason": "한자 상세 모달용 부수/획수 정보를 정리했습니다.",
         "characters": [
           {
             "char": "不",
             "meaningSound": "아닐 부",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "一",
+            "totalStrokes": 4,
+            "strokesExceptRadical": 3
           },
           {
             "char": "足",
             "meaningSound": "발 족",
-            "radical": null,
-            "totalStrokes": null,
-            "strokesExceptRadical": null
+            "radical": "足",
+            "totalStrokes": 7,
+            "strokesExceptRadical": 0
           }
         ]
       }

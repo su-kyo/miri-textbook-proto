@@ -131,6 +131,32 @@ function highlightExample(text = "", word = "") {
   return escapeHtml(raw);
 }
 
+function highlightMeaningSound(text = "") {
+  const parts = String(text).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return "";
+  }
+
+  if (parts.length === 1) {
+    return `<strong>${escapeHtml(parts[0])}</strong>`;
+  }
+
+  const last = escapeHtml(parts.pop());
+  return `${escapeHtml(parts.join(" "))} <strong>${last}</strong>`;
+}
+
+function formatStrokeCount(value) {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  return String(value).endsWith("획") ? String(value) : `${value}획`;
+}
+
+function hasDisplayValue(value) {
+  return value !== null && value !== undefined && value !== "";
+}
+
 function createRevealButton(kind, index, text, revealed, word, label) {
   const longClass = String(text).length > 34 ? " word-card__reveal-item--long" : "";
   const revealedClass = revealed ? " is-revealed" : "";
@@ -150,9 +176,9 @@ function createRevealButton(kind, index, text, revealed, word, label) {
 function createHanjaRowMarkup(entry) {
   const meta = [
     entry.radical ? `<div class="hanja-modal__meta-row"><span>부수</span><strong>${escapeHtml(entry.radical)}</strong></div>` : "",
-    entry.totalStrokes ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(entry.totalStrokes)}</strong></div>` : "",
-    entry.strokesExceptRadical
-      ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(entry.strokesExceptRadical)}</strong></div>`
+    hasDisplayValue(entry.totalStrokes) ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(formatStrokeCount(entry.totalStrokes))}</strong></div>` : "",
+    hasDisplayValue(entry.strokesExceptRadical)
+      ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(formatStrokeCount(entry.strokesExceptRadical))}</strong></div>`
       : "",
   ]
     .filter(Boolean)
@@ -162,7 +188,7 @@ function createHanjaRowMarkup(entry) {
     <article class="hanja-modal__item">
       <div class="hanja-modal__glyph-group">
         <p class="hanja-modal__glyph">${escapeHtml(entry.char)}</p>
-        <p class="hanja-modal__meaning-sound">${escapeHtml(entry.meaningSound)}</p>
+        <p class="hanja-modal__meaning-sound">${highlightMeaningSound(entry.meaningSound)}</p>
       </div>
       ${meta ? `<div class="hanja-modal__meta">${meta}</div>` : ""}
     </article>
@@ -616,6 +642,14 @@ async function initVocabCardPrototype() {
   });
 
   render();
+
+  requestAnimationFrame(() => {
+    const initialCard = getCardElement(state.activeIndex);
+    if (!initialCard) {
+      return;
+    }
+    flipCardToFront(state.activeIndex, initialCard);
+  });
 }
 
 async function initVocabMatchingPrototype() {
@@ -656,6 +690,18 @@ async function initVocabMatchingPrototype() {
     matchedIds: new Set(),
     selectedWordId: null,
     selectedMeaningId: null,
+    ignoreClickUntil: 0,
+    drag: {
+      pointerId: null,
+      startSide: null,
+      startId: null,
+      startX: 0,
+      startY: 0,
+      currentX: null,
+      currentY: null,
+      hoverId: null,
+      active: false,
+    },
   };
   let errorTimer = null;
   let resizeRaf = 0;
@@ -701,6 +747,146 @@ async function initVocabMatchingPrototype() {
     state.selectedMeaningId = null;
   }
 
+  function resetDrag() {
+    state.drag.pointerId = null;
+    state.drag.startSide = null;
+    state.drag.startId = null;
+    state.drag.startX = 0;
+    state.drag.startY = 0;
+    state.drag.currentX = null;
+    state.drag.currentY = null;
+    state.drag.hoverId = null;
+    state.drag.active = false;
+  }
+
+  function getOppositeSide(side) {
+    return side === "word" ? "meaning" : "word";
+  }
+
+  function getButtonBySide(side, id) {
+    if (!id) {
+      return null;
+    }
+
+    if (side === "word") {
+      return elements.wordsRoot.querySelector(`[data-word-id="${id}"]`);
+    }
+
+    return elements.meaningsRoot.querySelector(`[data-meaning-id="${id}"]`);
+  }
+
+  function getDotBySide(side, id) {
+    const button = getButtonBySide(side, id);
+    return button?.querySelector(side === "word" ? ".matching-pill__dot" : ".matching-meaning__dot") ?? null;
+  }
+
+  function getDotCenter(dot, boardRect) {
+    const rect = dot.getBoundingClientRect();
+    return {
+      x: rect.left - boardRect.left + rect.width / 2,
+      y: rect.top - boardRect.top + rect.height / 2,
+    };
+  }
+
+  function buildCurvePath(x1, y1, x2, y2) {
+    const midX = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+  }
+
+  function activateDrag() {
+    if (state.drag.active || !state.drag.startId || !state.drag.startSide) {
+      return;
+    }
+
+    state.drag.active = true;
+    clearSelection();
+    if (state.drag.startSide === "word") {
+      state.selectedWordId = state.drag.startId;
+    } else {
+      state.selectedMeaningId = state.drag.startId;
+    }
+  }
+
+  function updateDragHover(side, id) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    if (side !== getOppositeSide(state.drag.startSide) || state.matchedIds.has(id)) {
+      return;
+    }
+
+    if (state.drag.hoverId === id) {
+      return;
+    }
+
+    state.drag.hoverId = id;
+    render();
+  }
+
+  function clearDragHover(side, id) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    if (side !== getOppositeSide(state.drag.startSide) || state.drag.hoverId !== id) {
+      return;
+    }
+
+    state.drag.hoverId = null;
+    render();
+  }
+
+  function resolveDragHoverFromPoint(clientX, clientY) {
+    if (!state.drag.active || !state.drag.startSide) {
+      return;
+    }
+
+    const oppositeSide = getOppositeSide(state.drag.startSide);
+    const target = document.elementFromPoint(clientX, clientY);
+    const button =
+      oppositeSide === "word"
+        ? target?.closest("[data-word-id]")
+        : target?.closest("[data-meaning-id]");
+    const nextId =
+      oppositeSide === "word"
+        ? button?.dataset.wordId ?? null
+        : button?.dataset.meaningId ?? null;
+
+    state.drag.hoverId = nextId && !state.matchedIds.has(nextId) ? nextId : null;
+  }
+
+  function drawPreviewLine(boardRect) {
+    if (!state.drag.active || !state.drag.startSide || !state.drag.startId) {
+      return "";
+    }
+
+    const startDot = getDotBySide(state.drag.startSide, state.drag.startId);
+    if (!startDot) {
+      return "";
+    }
+
+    const start = getDotCenter(startDot, boardRect);
+    const hoverDot = state.drag.hoverId
+      ? getDotBySide(getOppositeSide(state.drag.startSide), state.drag.hoverId)
+      : null;
+    const end = hoverDot
+      ? getDotCenter(hoverDot, boardRect)
+      : state.drag.currentX === null || state.drag.currentY === null
+        ? null
+        : {
+            x: state.drag.currentX - boardRect.left,
+            y: state.drag.currentY - boardRect.top,
+          };
+
+    if (!end) {
+      return "";
+    }
+
+    const lineColor = pairColorById.get(state.drag.startId) ?? "var(--learning-brand-secondary)";
+    return `<path class="matching-board__line matching-board__line--preview" style="--matching-line-color: ${lineColor};" d="${buildCurvePath(start.x, start.y, end.x, end.y)}" />`;
+  }
+
   function drawLines() {
     const boardRect = elements.board.getBoundingClientRect();
     const width = Math.max(1, Math.round(boardRect.width));
@@ -721,14 +907,18 @@ async function initVocabMatchingPrototype() {
         const y1 = wordRect.top - boardRect.top + wordRect.height / 2;
         const x2 = meaningRect.left - boardRect.left + meaningRect.width / 2;
         const y2 = meaningRect.top - boardRect.top + meaningRect.height / 2;
-        const midX = (x1 + x2) / 2;
         const lineColor = pairColorById.get(id) ?? "var(--learning-status-success)";
 
-        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
+        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="${buildCurvePath(x1, y1, x2, y2)}" />`;
       })
-      .join("");
+      .filter(Boolean);
 
-    elements.svg.innerHTML = lines;
+    const previewLine = drawPreviewLine(boardRect);
+    if (previewLine) {
+      lines.push(previewLine);
+    }
+
+    elements.svg.innerHTML = lines.join("");
     elements.svg.querySelectorAll(".matching-board__line").forEach((path) => {
       const lineId = path.dataset.lineId;
       const length = path.getTotalLength();
@@ -798,6 +988,81 @@ async function initVocabMatchingPrototype() {
     setError(wordId, meaningId);
   }
 
+  function beginDragCandidate(side, id, event) {
+    if (state.matchedIds.has(id)) {
+      return;
+    }
+
+    state.drag.pointerId = event.pointerId;
+    state.drag.startSide = side;
+    state.drag.startId = id;
+    state.drag.startX = event.clientX;
+    state.drag.startY = event.clientY;
+    state.drag.currentX = event.clientX;
+    state.drag.currentY = event.clientY;
+    state.drag.hoverId = null;
+    state.drag.active = false;
+  }
+
+  function updateDrag(event) {
+    if (state.drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    state.drag.currentX = event.clientX;
+    state.drag.currentY = event.clientY;
+
+    if (!state.drag.active) {
+      const distance = Math.hypot(event.clientX - state.drag.startX, event.clientY - state.drag.startY);
+      if (distance > 8) {
+        activateDrag();
+      }
+    }
+
+    if (!state.drag.active) {
+      return;
+    }
+
+    resolveDragHoverFromPoint(event.clientX, event.clientY);
+    render();
+  }
+
+  function finishDrag(event) {
+    if (state.drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const wasActive = state.drag.active;
+    const startSide = state.drag.startSide;
+    const startId = state.drag.startId;
+
+    if (wasActive) {
+      resolveDragHoverFromPoint(event.clientX, event.clientY);
+    }
+
+    const hoverId = state.drag.hoverId;
+    resetDrag();
+
+    if (!wasActive) {
+      return;
+    }
+
+    state.ignoreClickUntil = performance.now() + 240;
+
+    if (!hoverId || !startSide || !startId) {
+      clearSelection();
+      render();
+      return;
+    }
+
+    if (startSide === "word") {
+      tryMatch(startId, hoverId);
+      return;
+    }
+
+    tryMatch(hoverId, startId);
+  }
+
   function handleWordSelect(wordId) {
     if (state.matchedIds.has(wordId)) {
       return;
@@ -838,7 +1103,37 @@ async function initVocabMatchingPrototype() {
     render();
   }
 
+  elements.wordsRoot.querySelectorAll("[data-word-id]").forEach((node) => {
+    const wordId = node.dataset.wordId;
+    node.addEventListener("pointerdown", (event) => {
+      beginDragCandidate("word", wordId, event);
+    });
+    node.addEventListener("pointerenter", () => {
+      updateDragHover("word", wordId);
+    });
+    node.addEventListener("pointerleave", () => {
+      clearDragHover("word", wordId);
+    });
+  });
+
+  elements.meaningsRoot.querySelectorAll("[data-meaning-id]").forEach((node) => {
+    const meaningId = node.dataset.meaningId;
+    node.addEventListener("pointerdown", (event) => {
+      beginDragCandidate("meaning", meaningId, event);
+    });
+    node.addEventListener("pointerenter", () => {
+      updateDragHover("meaning", meaningId);
+    });
+    node.addEventListener("pointerleave", () => {
+      clearDragHover("meaning", meaningId);
+    });
+  });
+
   document.addEventListener("click", (event) => {
+    if (performance.now() < state.ignoreClickUntil) {
+      return;
+    }
+
     const wordButton = event.target.closest("[data-word-id]");
     if (wordButton && elements.wordsRoot.contains(wordButton)) {
       handleWordSelect(wordButton.dataset.wordId);
@@ -879,6 +1174,10 @@ async function initVocabMatchingPrototype() {
 
   const resizeObserver = new ResizeObserver(refreshLines);
   resizeObserver.observe(elements.board);
+
+  window.addEventListener("pointermove", updateDrag);
+  window.addEventListener("pointerup", finishDrag);
+  window.addEventListener("pointercancel", finishDrag);
 
   render();
 }
