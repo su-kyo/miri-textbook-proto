@@ -10,7 +10,7 @@
   height: 100dvh;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at top, rgba(107, 78, 255, 0.08), transparent 26%),
+    radial-gradient(circle at top, color-mix(in srgb, var(--learning-brand-primary) 10%, transparent), transparent 26%),
     var(--learning-bg-default);
 }
 
@@ -85,8 +85,8 @@
 
 .learning-header__title {
   font-family: var(--font-body-eb);
-  font-size: 20px;
-  line-height: 1.4;
+  font-size: var(--learning-type-subheading-size);
+  line-height: var(--learning-type-subheading-line);
   color: var(--learning-text-primary);
 }
 
@@ -147,14 +147,14 @@
 
 .theme-light .learning-theme-toggle__icon:first-child,
 .theme-dark .learning-theme-toggle__icon:last-child {
-  display: inline-flex;
   opacity: 1;
+  visibility: visible;
 }
 
 .theme-light .learning-theme-toggle__icon:last-child,
 .theme-dark .learning-theme-toggle__icon:first-child {
-  display: none;
   opacity: 0;
+  visibility: hidden;
 }
 
 .learning-content {
@@ -252,7 +252,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #ece6ff;
+  background: var(--learning-progress-track);
 }
 
 .learning-progress__dot.is-complete {
@@ -274,7 +274,7 @@
   width: 14px;
   height: 4px;
   border-radius: 999px;
-  background: #ece6ff;
+  background: var(--learning-progress-track);
 }
 
 .learning-progress__line.is-complete {
@@ -301,7 +301,7 @@
   justify-content: center;
   border-radius: 14px;
   background: var(--learning-brand-primary);
-  color: #ffffff;
+  color: var(--learning-text-on-brand);
   font-family: var(--font-body-eb);
   font-size: var(--learning-type-cta-size);
   line-height: var(--learning-type-cta-line);
@@ -364,7 +364,7 @@
 .learning-modal__scrim {
   position: absolute;
   inset: 0;
-  background: rgba(26, 21, 48, 0.8);
+  background: var(--learning-scrim);
 }
 
 .learning-modal__dialog {

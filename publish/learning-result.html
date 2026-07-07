@@ -6,8 +6,8 @@
     <base href="../" />
     <title>학습 결과</title>
     <link rel="stylesheet" href="shared/css/base.css" />
-    <link rel="stylesheet" href="shared/css/learning-shell.css" />
-    <link rel="stylesheet" href="shared/css/learning-components.css" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css?v=20260707e" />
+    <link rel="stylesheet" href="shared/css/learning-components.css?v=20260707e" />
     <script>
       (function () {
         if (window.location.protocol !== "file:") return;
@@ -78,6 +78,21 @@
         </section>
       </main>
     </div>
-    <script type="module" src="publish/js/learning-publish-init.js?v=20260706d"></script>
+
+    <div class="learning-modal" hidden data-hanja-modal>
+      <div class="learning-modal__scrim" data-hanja-close></div>
+      <section class="learning-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hanja-modal-title">
+        <header class="learning-modal__header">
+          <div class="learning-modal__title" id="hanja-modal-title">한자 상세</div>
+          <button class="learning-modal__close" type="button" aria-label="한자 상세 닫기" data-hanja-close>×</button>
+        </header>
+        <div class="learning-modal__body">
+          <p class="learning-modal__word" data-modal-word></p>
+          <div class="learning-modal__list" data-hanja-list></div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260706g"></script>
   </body>
 </html>

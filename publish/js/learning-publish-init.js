@@ -29,6 +29,7 @@ const LEARNING_STAGE_DATA = [
   { label: "객관식", icon: "asset/icons/learning/passage-mc.svg", correct: 2, total: 3 },
 ];
 const BOTTOM_SHEET_TRANSITION_MS = 320;
+const LETTER_WRONG_FEEDBACK_MS = 420;
 const LEARNING_EXIT_PAGE_IDS = new Set([
   "learning-vocab-card",
   "learning-vocab-matching",
@@ -360,6 +361,56 @@ function highlightMeaningSound(text = "") {
   return `${escapeHtml(parts.join(" "))} <strong>${last}</strong>`;
 }
 
+function buildHanjaModalRowsMarkup(source) {
+  return getHanjaCharacterRows(source)
+    .map((entry) => {
+      const meta = [
+        entry.radical ? `<div class="hanja-modal__meta-row"><span>부수</span><strong>${escapeHtml(entry.radical)}</strong></div>` : "",
+        entry.totalStrokes ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(entry.totalStrokes)}</strong></div>` : "",
+        entry.strokesExceptRadical
+          ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(entry.strokesExceptRadical)}</strong></div>`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("");
+
+      return `
+        <article class="hanja-modal__item">
+          <div class="hanja-modal__glyph-group">
+            <p class="hanja-modal__glyph">${escapeHtml(entry.char)}</p>
+            <p class="hanja-modal__meaning-sound">${highlightMeaningSound(entry.meaningSound)}</p>
+          </div>
+          ${meta ? `<div class="hanja-modal__meta">${meta}</div>` : ""}
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function openHanjaModal(elements, source, wordLabel = source?.word ?? "") {
+  if (!elements?.modal || !elements?.modalWord || !elements?.hanjaList) {
+    return false;
+  }
+
+  const rows = getHanjaCharacterRows(source);
+  if (!rows.length) {
+    return false;
+  }
+
+  elements.modalWord.textContent = wordLabel;
+  elements.hanjaList.innerHTML = buildHanjaModalRowsMarkup(source);
+  elements.modal.hidden = false;
+  return true;
+}
+
+function closeHanjaModal(elements) {
+  if (!elements?.modal) {
+    return;
+  }
+
+  elements.modal.hidden = true;
+}
+
 function formatScoreMarkup(correct, total) {
   return `<span class="complete-card__score-current">${correct}</span><span class="complete-card__score-total">/${total}</span>`;
 }
@@ -458,35 +509,6 @@ async function initVocabCard() {
 
   function canMovePrev() {
     return state.activeIndex > 0;
-  }
-
-  function buildHanjaRows(card) {
-    const rows = getHanjaCharacterRows(card);
-    elements.hanjaList.innerHTML = rows
-      .map((entry) => {
-        const meta = [
-          entry.radical ? `<div class="hanja-modal__meta-row"><span>부수</span><strong>${escapeHtml(entry.radical)}</strong></div>` : "",
-          entry.totalStrokes
-            ? `<div class="hanja-modal__meta-row"><span>총 획수</span><strong>${escapeHtml(entry.totalStrokes)}</strong></div>`
-            : "",
-          entry.strokesExceptRadical
-            ? `<div class="hanja-modal__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(entry.strokesExceptRadical)}</strong></div>`
-            : "",
-        ]
-          .filter(Boolean)
-          .join("");
-
-        return `
-          <article class="hanja-modal__item">
-            <div class="hanja-modal__glyph-group">
-              <p class="hanja-modal__glyph">${escapeHtml(entry.char)}</p>
-              <p class="hanja-modal__meaning-sound">${highlightMeaningSound(entry.meaningSound)}</p>
-            </div>
-            ${meta ? `<div class="hanja-modal__meta">${meta}</div>` : ""}
-          </article>
-        `;
-      })
-      .join("");
   }
 
   function updateReadyState() {
@@ -607,18 +629,13 @@ async function initVocabCard() {
 
   function openModal() {
     const card = deck[state.activeIndex];
-    const rows = getHanjaCharacterRows(card);
-    if (!rows.length) {
+    if (!openHanjaModal(elements, card, card.word)) {
       return;
     }
-
-    elements.modalWord.textContent = card.word;
-    buildHanjaRows(card);
-    elements.modal.hidden = false;
   }
 
   function closeModal() {
-    elements.modal.hidden = true;
+    closeHanjaModal(elements);
   }
 
   function renderCard() {
@@ -860,7 +877,17 @@ async function initVocabMatching() {
 
   const rightOrder = [2, 0, 3, 1].filter((index) => pairs[index]);
   const orderedMeanings = rightOrder.map((index) => pairs[index]);
+  const pairColorVars = [
+    "var(--learning-status-success)",
+    "var(--learning-matching-pair-a)",
+    "var(--learning-matching-pair-b)",
+    "var(--learning-brand-secondary)",
+  ];
+  const pairColorById = new Map(
+    pairs.map((pair, index) => [pair.id, pairColorVars[index % pairColorVars.length]]),
+  );
   const state = {
+    animatedLineIds: new Set(),
     matchedIds: new Set(),
     selectedWordId: null,
     selectedMeaningId: null,
@@ -881,8 +908,10 @@ async function initVocabMatching() {
   wordsRoot.innerHTML = pairs
     .map(
       (pair) => `
-        <button class="matching-pill" type="button" data-word-id="${pair.id}">
-          <span class="matching-pill__label">${escapeHtml(pair.word)}</span>
+        <button class="matching-pill" type="button" data-word-id="${pair.id}" style="--matching-pair-color: ${pairColorById.get(pair.id)};">
+          <span class="matching-pill__body">
+            <span class="matching-pill__label">${escapeHtml(pair.word)}</span>
+          </span>
           <span class="matching-pill__dot" aria-hidden="true"></span>
         </button>
       `,
@@ -892,9 +921,11 @@ async function initVocabMatching() {
   meaningsRoot.innerHTML = orderedMeanings
     .map(
       (pair) => `
-        <button class="matching-meaning" type="button" data-meaning-id="${pair.id}">
+        <button class="matching-meaning" type="button" data-meaning-id="${pair.id}" style="--matching-pair-color: ${pairColorById.get(pair.id)};">
           <span class="matching-meaning__dot" aria-hidden="true"></span>
-          <span class="matching-meaning__label">${escapeHtml(pair.meaning)}</span>
+          <span class="matching-meaning__body">
+            <span class="matching-meaning__label">${escapeHtml(pair.meaning)}</span>
+          </span>
         </button>
       `,
     )
@@ -926,12 +957,22 @@ async function initVocabMatching() {
         const x2 = meaningRect.left - boardRect.left + meaningRect.width / 2;
         const y2 = meaningRect.top - boardRect.top + meaningRect.height / 2;
         const midX = (x1 + x2) / 2;
+        const lineColor = pairColorById.get(id) ?? "var(--learning-status-success)";
 
-        return `<path class="matching-board__line" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
+        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
       })
       .join("");
 
     svg.innerHTML = lines;
+    svg.querySelectorAll(".matching-board__line").forEach((path) => {
+      const lineId = path.dataset.lineId;
+      const length = path.getTotalLength();
+      path.style.setProperty("--matching-line-length", String(length));
+      if (lineId && !state.animatedLineIds.has(lineId)) {
+        path.classList.add("is-drawing");
+        state.animatedLineIds.add(lineId);
+      }
+    });
   }
 
   function render() {
@@ -939,12 +980,20 @@ async function initVocabMatching() {
       const id = node.dataset.wordId;
       node.classList.toggle("is-active", id === state.selectedWordId);
       node.classList.toggle("is-matched", state.matchedIds.has(id));
+      node.classList.toggle(
+        "is-outfocused",
+        !!state.selectedWordId && id !== state.selectedWordId && !state.matchedIds.has(id),
+      );
     });
 
     meaningsRoot.querySelectorAll("[data-meaning-id]").forEach((node) => {
       const id = node.dataset.meaningId;
       node.classList.toggle("is-active", id === state.selectedMeaningId);
       node.classList.toggle("is-matched", state.matchedIds.has(id));
+      node.classList.toggle(
+        "is-outfocused",
+        !!state.selectedMeaningId && id !== state.selectedMeaningId && !state.matchedIds.has(id),
+      );
     });
 
     updateFooterState();
@@ -989,6 +1038,12 @@ async function initVocabMatching() {
       return;
     }
 
+    if (state.selectedWordId && state.selectedWordId !== wordId) {
+      clearSelection();
+      render();
+      return;
+    }
+
     if (state.selectedMeaningId) {
       tryMatch(wordId, state.selectedMeaningId);
       return;
@@ -1000,6 +1055,12 @@ async function initVocabMatching() {
 
   function handleMeaningSelect(meaningId) {
     if (state.matchedIds.has(meaningId)) {
+      return;
+    }
+
+    if (state.selectedMeaningId && state.selectedMeaningId !== meaningId) {
+      clearSelection();
+      render();
       return;
     }
 
@@ -1031,6 +1092,12 @@ async function initVocabMatching() {
       }
 
       window.location.href = hrefWithTheme(pageHref("learning-vocab-letter"));
+      return;
+    }
+
+    if (state.selectedWordId || state.selectedMeaningId) {
+      clearSelection();
+      render();
     }
   });
 
@@ -1084,6 +1151,7 @@ async function initVocabLetter() {
     mode: "problem",
     pickedTileIndexes: [],
   };
+  let wrongResetTimer = null;
 
   function normalizeQuestion(question) {
     const answerText = question.answerText ?? question.answer ?? "";
@@ -1142,7 +1210,10 @@ async function initVocabLetter() {
       .map((_, index) => {
         const value = values[index] ?? "";
         const hint = !value && question.hints?.[index] ? `<span class="letter-blank__hint">${escapeHtml(question.hints[index])}</span>` : "";
-        return `<span class="letter-blank${value ? " is-filled" : ""}" ${value && state.mode === "problem" ? `data-letter-slot="${index}"` : ""}>${value ? escapeHtml(value) : hint}</span>`;
+        const filledClass = value ? " is-filled" : "";
+        const wrongClass = state.mode === "wrong" && value ? " is-wrong is-shaking" : "";
+        const interactiveSlot = value && state.mode === "problem" ? `data-letter-slot="${index}"` : "";
+        return `<span class="letter-blank${filledClass}${wrongClass}" ${interactiveSlot}>${value ? escapeHtml(value) : hint}</span>`;
       })
       .join("");
   }
@@ -1177,8 +1248,9 @@ async function initVocabLetter() {
     tiles.innerHTML = question.tiles
       .map((tile, index) => {
         const used = state.pickedTileIndexes.includes(index);
+        const wrongClass = state.mode === "wrong" && used ? " is-wrong is-shaking" : "";
         return `
-          <button class="letter-tile${used ? " is-used" : ""}" type="button" data-letter-tile="${index}" ${used ? "disabled" : ""}>
+          <button class="letter-tile${used ? " is-used" : ""}${wrongClass}" type="button" data-letter-tile="${index}" ${used ? "disabled" : ""}>
             ${escapeHtml(tile)}
           </button>
         `;
@@ -1211,6 +1283,18 @@ async function initVocabLetter() {
     }
   }
 
+  function clearWrongResetTimer() {
+    window.clearTimeout(wrongResetTimer);
+    wrongResetTimer = null;
+  }
+
+  function resetAfterWrongAnswer() {
+    clearWrongResetTimer();
+    state.mode = "problem";
+    state.pickedTileIndexes = [];
+    render();
+  }
+
   function tryComplete() {
     const question = currentQuestion();
     if (state.pickedTileIndexes.length !== question.answerUnits.length) {
@@ -1219,9 +1303,17 @@ async function initVocabLetter() {
 
     const answer = selectedValues().join("");
     if (answer === question.answerUnits.join("")) {
+      clearWrongResetTimer();
       state.mode = "correct";
       render();
+      return;
     }
+
+    state.mode = "wrong";
+    render();
+    wrongResetTimer = window.setTimeout(() => {
+      resetAfterWrongAnswer();
+    }, LETTER_WRONG_FEEDBACK_MS);
   }
 
   document.addEventListener("click", (event) => {
@@ -1907,6 +1999,11 @@ async function initResult() {
   const wrongTitle = document.querySelector("[data-result-wrong-title]");
   const tabButtons = document.querySelectorAll("[data-result-tab]");
   const panels = document.querySelectorAll("[data-result-panel]");
+  const hanjaModalElements = {
+    modal: document.querySelector("[data-hanja-modal]"),
+    modalWord: document.querySelector("[data-modal-word]"),
+    hanjaList: document.querySelector("[data-hanja-list]"),
+  };
 
   const totalCorrect = LEARNING_STAGE_DATA.reduce((sum, item) => sum + item.correct, 0);
   const totalQuestions = LEARNING_STAGE_DATA.reduce((sum, item) => sum + item.total, 0);
@@ -1961,11 +2058,20 @@ async function initResult() {
           `,
         )
         .join("");
+      const hasHanjaRows = getHanjaCharacterRows(word).length > 0;
       return `
         <article class="learning-card wrong-word-card">
           <div class="wrong-word-card__word">
             <h2 class="wrong-word-card__title">${escapeHtml(word.word)}</h2>
-            ${word.hanja ? `<div class="wrong-word-card__hanja">${escapeHtml(word.hanja)}<img src="asset/ico_card-info.svg" alt="" /></div>` : ""}
+            ${
+              word.hanja
+                ? hasHanjaRows
+                  ? `<button class="wrong-word-card__hanja" type="button" data-result-hanja-open="${escapeHtml(word.id)}" aria-label="${escapeHtml(
+                      `${word.word} 한자 상세 보기`,
+                    )}">${escapeHtml(word.hanja)}<img src="asset/ico_card-info.svg" alt="" /></button>`
+                  : `<div class="wrong-word-card__hanja">${escapeHtml(word.hanja)}<img src="asset/ico_card-info.svg" alt="" /></div>`
+                : ""
+            }
             <p class="wrong-word-card__meaning">${escapeHtml(word.meaning)}</p>
           </div>
           <div class="wrong-word-card__examples">
@@ -1991,6 +2097,39 @@ async function initResult() {
     button.addEventListener("click", () => {
       setActiveResultTab(button.dataset.resultTab);
     });
+  });
+
+  wrongWords?.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-result-hanja-open]");
+    if (!trigger) {
+      return;
+    }
+
+    const wordId = trigger.getAttribute("data-result-hanja-open");
+    const selectedWord = wrongVocabulary.find((word) => word.id === wordId);
+    if (!selectedWord) {
+      return;
+    }
+
+    openHanjaModal(hanjaModalElements, selectedWord, selectedWord.word);
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-hanja-close]")) {
+      closeHanjaModal(hanjaModalElements);
+      return;
+    }
+
+    const dialog = hanjaModalElements.modal?.querySelector(".learning-modal__dialog");
+    if (!hanjaModalElements.modal?.hidden && dialog && !dialog.contains(event.target) && event.target.closest(".learning-modal")) {
+      closeHanjaModal(hanjaModalElements);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeHanjaModal(hanjaModalElements);
+    }
   });
 
   backLink?.addEventListener("click", (event) => {
