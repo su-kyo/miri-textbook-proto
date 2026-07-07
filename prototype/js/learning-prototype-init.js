@@ -642,7 +642,17 @@ async function initVocabMatchingPrototype() {
 
   const rightOrder = [2, 0, 3, 1].filter((index) => pairs[index]);
   const orderedMeanings = rightOrder.map((index) => pairs[index]);
+  const pairColorVars = [
+    "var(--learning-status-success)",
+    "var(--learning-matching-pair-a)",
+    "var(--learning-matching-pair-b)",
+    "var(--learning-brand-secondary)",
+  ];
+  const pairColorById = new Map(
+    pairs.map((pair, index) => [pair.id, pairColorVars[index % pairColorVars.length]]),
+  );
   const state = {
+    animatedLineIds: new Set(),
     matchedIds: new Set(),
     selectedWordId: null,
     selectedMeaningId: null,
@@ -653,8 +663,10 @@ async function initVocabMatchingPrototype() {
   elements.wordsRoot.innerHTML = pairs
     .map(
       (pair) => `
-        <button class="matching-pill" type="button" data-word-id="${pair.id}">
-          <span class="matching-pill__label">${escapeHtml(pair.word)}</span>
+        <button class="matching-pill" type="button" data-word-id="${pair.id}" style="--matching-pair-color: ${pairColorById.get(pair.id)};">
+          <span class="matching-pill__body">
+            <span class="matching-pill__label">${escapeHtml(pair.word)}</span>
+          </span>
           <span class="matching-pill__dot" aria-hidden="true"></span>
         </button>
       `,
@@ -664,9 +676,11 @@ async function initVocabMatchingPrototype() {
   elements.meaningsRoot.innerHTML = orderedMeanings
     .map(
       (pair) => `
-        <button class="matching-meaning" type="button" data-meaning-id="${pair.id}">
+        <button class="matching-meaning" type="button" data-meaning-id="${pair.id}" style="--matching-pair-color: ${pairColorById.get(pair.id)};">
           <span class="matching-meaning__dot" aria-hidden="true"></span>
-          <span class="matching-meaning__label">${escapeHtml(pair.meaning)}</span>
+          <span class="matching-meaning__body">
+            <span class="matching-meaning__label">${escapeHtml(pair.meaning)}</span>
+          </span>
         </button>
       `,
     )
@@ -708,12 +722,22 @@ async function initVocabMatchingPrototype() {
         const x2 = meaningRect.left - boardRect.left + meaningRect.width / 2;
         const y2 = meaningRect.top - boardRect.top + meaningRect.height / 2;
         const midX = (x1 + x2) / 2;
+        const lineColor = pairColorById.get(id) ?? "var(--learning-status-success)";
 
-        return `<path class="matching-board__line" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
+        return `<path class="matching-board__line" data-line-id="${id}" style="--matching-line-color: ${lineColor};" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" />`;
       })
       .join("");
 
     elements.svg.innerHTML = lines;
+    elements.svg.querySelectorAll(".matching-board__line").forEach((path) => {
+      const lineId = path.dataset.lineId;
+      const length = path.getTotalLength();
+      path.style.setProperty("--matching-line-length", String(length));
+      if (lineId && !state.animatedLineIds.has(lineId)) {
+        path.classList.add("is-drawing");
+        state.animatedLineIds.add(lineId);
+      }
+    });
   }
 
   function render() {
@@ -721,12 +745,20 @@ async function initVocabMatchingPrototype() {
       const id = node.dataset.wordId;
       node.classList.toggle("is-active", id === state.selectedWordId);
       node.classList.toggle("is-matched", state.matchedIds.has(id));
+      node.classList.toggle(
+        "is-outfocused",
+        !!state.selectedWordId && id !== state.selectedWordId && !state.matchedIds.has(id),
+      );
     });
 
     elements.meaningsRoot.querySelectorAll("[data-meaning-id]").forEach((node) => {
       const id = node.dataset.meaningId;
       node.classList.toggle("is-active", id === state.selectedMeaningId);
       node.classList.toggle("is-matched", state.matchedIds.has(id));
+      node.classList.toggle(
+        "is-outfocused",
+        !!state.selectedMeaningId && id !== state.selectedMeaningId && !state.matchedIds.has(id),
+      );
     });
 
     updateFooterState();
@@ -771,6 +803,12 @@ async function initVocabMatchingPrototype() {
       return;
     }
 
+    if (state.selectedWordId && state.selectedWordId !== wordId) {
+      clearSelection();
+      render();
+      return;
+    }
+
     if (state.selectedMeaningId) {
       tryMatch(wordId, state.selectedMeaningId);
       return;
@@ -782,6 +820,12 @@ async function initVocabMatchingPrototype() {
 
   function handleMeaningSelect(meaningId) {
     if (state.matchedIds.has(meaningId)) {
+      return;
+    }
+
+    if (state.selectedMeaningId && state.selectedMeaningId !== meaningId) {
+      clearSelection();
+      render();
       return;
     }
 
@@ -813,6 +857,12 @@ async function initVocabMatchingPrototype() {
       }
 
       window.location.href = hrefWithTheme(pageHref("learning-vocab-letter"));
+      return;
+    }
+
+    if (state.selectedWordId || state.selectedMeaningId) {
+      clearSelection();
+      render();
     }
   });
 
