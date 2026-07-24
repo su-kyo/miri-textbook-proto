@@ -1,18 +1,14 @@
 # Constellations Cleanup Notes
 
 ## 정리 결과
-- 기준표의 88개 별자리를 기준으로 원본은 `asset/constellations/{id}/{id}.png`로 보관하고, 화면용 자산은 `asset/constellations/{id}/{id}.webp`로 사용합니다.
+- 기준표의 88개 별자리를 기준으로 원본은 `asset/constellation_origin/{id}/{id}.png`로 보관하고, 화면용 자산은 `asset/constellation/{id}/{id}.webp`로 사용합니다.
 - 공백이 있던 파일명은 모두 kebab-case로 정리했습니다.
 - 일부 별자리는 `hidden` 원본이 없어서 화면에서는 본 이미지 WebP로 fallback 되도록 정리했습니다.
 - 기존 분류 기준 문서는 `data/constellations-grade-type-reference.md`로 이동했습니다.
 
 ## 삭제한 파일
-- `asset/constellations/.DS_Store`
-- `asset/constellations/new_동물형/.DS_Store`
-- `asset/constellations/new_인물형/.DS_Store`
-- 비어 있는 `asset/constellations/new_동물형`
-- 비어 있는 `asset/constellations/new_인물형`
-- 비어 있는 `asset/constellations/new_사물형`
+- legacy 별자리 폴더의 `.DS_Store`
+- legacy 분류용 빈 폴더 3종
 
 ## 보류한 파일
 - 없음
