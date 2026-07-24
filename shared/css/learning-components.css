@@ -2371,6 +2371,20 @@
   letter-spacing: -0.04em;
 }
 
+/* 진단평가 완료: 제목 한 줄 크기 + 부제는 작은 인디고 안내 문구 */
+.learning-publish-body[data-page="diagnostic-complete"] .complete-card__title {
+  font-size: var(--learning-type-heading-size);
+  line-height: var(--learning-type-heading-line);
+}
+
+.learning-publish-body[data-page="diagnostic-complete"] .complete-card__subtitle {
+  color: var(--learning-text-brand);
+  font-family: var(--font-body-bold);
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+}
+
 .complete-card__score {
   width: 100%;
   padding: 16px;
@@ -2544,4 +2558,236 @@
     stroke-dashoffset: 0;
     opacity: 1;
   }
+}
+
+/* 진단평가 풀이 화면 — 학습 토큰만 사용 */
+.diagnostic-progress {
+  align-self: center;
+  width: fit-content;
+  margin: 0 0 12px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--learning-brand-primary-soft);
+  color: var(--learning-text-tertiary);
+  font-family: var(--font-body-bold);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.diagnostic-progress__current {
+  color: var(--learning-text-brand);
+}
+
+/* 지시문: 작게, 보조. 문제 텍스트 위 */
+.diagnostic-instruction {
+  margin: 0 0 2px;
+  color: var(--learning-text-secondary);
+  font-family: var(--font-body-bold);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* 문제 텍스트(주인공) — 박스 없이 크게 */
+.diagnostic-stem {
+  margin: 0;
+  padding: 4px 8px 2px;
+  color: var(--learning-text-primary);
+  font-family: var(--font-body-eb);
+  font-size: var(--learning-type-subheading-size);
+  line-height: 1.5;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+/* 문제 텍스트 — 박스로 감쌈(자료 성격). 텍스트는 .question-prompt-card__title 재사용 */
+.diagnostic-stem-card {
+  margin: 0;
+}
+
+/* 빈칸: □□□ 대신 빈 흰색 입력 박스 */
+.diagnostic-blank {
+  display: inline-block;
+  width: 120px;
+  height: 40px;
+  margin: 0 6px;
+  vertical-align: middle;
+  border-radius: 10px;
+  border: 1px solid var(--learning-border-medium);
+  background: var(--learning-surface-default);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 지문 다시 보기: 솔리드 인디고 알약 */
+.diagnostic-passage-toggle {
+  align-self: center;
+  min-height: 40px;
+  margin: 4px 0 0;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--learning-brand-primary);
+  color: var(--learning-text-on-brand);
+  font-family: var(--font-body-bold);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.diagnostic-passage-toggle:active {
+  transform: translateY(1px);
+}
+
+/* 진단평가 지문 스텝: 흰색 지문 카드는 뷰포트에 고정하고 카드 내부(.passage-card__body)만 스크롤한다.
+   render()에서 지문 스텝일 때 root에 --quiz-passage 클래스를 붙인다. */
+.learning-content__inner--quiz-passage {
+  min-height: 0;
+  height: 100%;
+  justify-content: flex-start;
+}
+
+.learning-content__inner--quiz-passage .learning-step-info {
+  flex: 0 0 auto;
+}
+
+.learning-content__inner--quiz-passage .diagnostic-passage-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.diagnostic-passage__title {
+  margin: 0 0 12px;
+  color: var(--learning-text-primary);
+  font-family: var(--font-passage-bold);
+  font-size: var(--learning-type-passage-heading-size);
+  line-height: var(--learning-type-passage-heading-line);
+}
+
+.diagnostic-passage__line {
+  margin: 0;
+  color: var(--learning-text-primary);
+  font-family: var(--font-passage);
+  font-size: 17px;
+  line-height: 1.8;
+  letter-spacing: -0.03em;
+}
+
+.diagnostic-passage__line + .diagnostic-passage__line {
+  margin-top: 6px;
+}
+
+/* 지문 삽화 자리 표시(원본 이미지 미보유 데모용) */
+.diagnostic-passage__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  margin: 14px 0;
+  border: 1px dashed var(--learning-border-strong, var(--learning-text-tertiary));
+  border-radius: 12px;
+  background: var(--learning-surface-muted, rgba(127, 127, 127, 0.08));
+  color: var(--learning-text-tertiary);
+  font-family: var(--font-passage);
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+/* R1. 풀이 footer 2버튼(이전/다음) */
+.learning-footer__inner--split {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.learning-footer__inner--split .learning-footer__cta {
+  flex: 1 1 auto;
+}
+
+.learning-footer__prev {
+  flex: 0 0 auto;
+  min-width: 88px;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 16px;
+  border: 1px solid var(--learning-border-medium);
+  background: var(--learning-surface-raised);
+  color: var(--learning-text-secondary);
+  font-family: var(--font-body-eb);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.learning-footer__prev:active {
+  transform: translateY(1px);
+}
+
+/* R4. 지문 다시 보기 — 전체 높이 오버레이 */
+.bottom-sheet--full {
+  top: 0;
+  bottom: 0;
+  padding: 0;
+  background: var(--learning-scrim);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.bottom-sheet--full.is-open {
+  opacity: 1;
+}
+
+/* 지문 다시보기 레이어: 스크림 위에 흰 지문 카드 + 하단 '문제 보기' 버튼 */
+.bottom-sheet--full .bottom-sheet__panel {
+  position: absolute;
+  top: 24px;
+  left: 16px;
+  right: 16px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  transform: none;
+  opacity: 1;
+}
+
+.diagnostic-passage-sheet__card {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  padding: 0;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.diagnostic-passage-sheet__card .passage-card__body {
+  height: 100%;
+  overscroll-behavior: contain;
+}
+
+.diagnostic-passage-sheet__back {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 10px 28px;
+  border: none;
+  border-radius: 999px;
+  background: var(--learning-brand-primary);
+  color: var(--learning-text-on-brand);
+  font-family: var(--font-body-bold);
+  font-size: 15px;
+  line-height: 1.5;
+  box-shadow: var(--learning-shadow-sheet);
+}
+
+.diagnostic-passage-sheet__back:active {
+  transform: translateY(1px);
 }

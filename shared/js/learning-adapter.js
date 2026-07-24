@@ -1,5 +1,5 @@
-import { LEARNING_PAGE_TO_ACTIVITY } from "./app-config.js?v=20260724a";
-import { loadLearningContentRaw } from "./data-loader.js?v=20260724a";
+import { LEARNING_PAGE_TO_ACTIVITY } from "./app-config.js?v=20260724i";
+import { loadLearningContentRaw } from "./data-loader.js?v=20260724i";
 
 let cachedBundle = null;
 

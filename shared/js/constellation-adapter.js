@@ -1,5 +1,5 @@
-import { HOME_CONSTELLATION_COUNT } from "./app-config.js?v=20260724a";
-import { loadConstellationsRaw } from "./data-loader.js?v=20260724a";
+import { HOME_CONSTELLATION_COUNT } from "./app-config.js?v=20260724i";
+import { loadConstellationsRaw } from "./data-loader.js?v=20260724i";
 import {
   buildDuplicateCount,
   buildProgressSegments,
@@ -7,7 +7,7 @@ import {
   getConstellationAsset,
   percentToLightCount,
   pickRandomConstellations,
-} from "./constellation-utils.js?v=20260724a";
+} from "./constellation-utils.js?v=20260724i";
 
 let cachedCatalog = null;
 

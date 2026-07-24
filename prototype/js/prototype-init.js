@@ -1,15 +1,15 @@
-import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260724a";
-import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260724a";
-import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260724a";
-import { createPrototypeStore } from "./prototype-state.js?v=20260724a";
-import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260724a";
-import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js?v=20260724a";
-import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260724a";
+import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260724i";
+import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260724i";
+import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260724i";
+import { createPrototypeStore } from "./prototype-state.js?v=20260724i";
+import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260724i";
+import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js?v=20260724i";
+import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260724i";
 
 if (!redirectFileProtocolToPreview()) {
   const pageId = document.body.dataset.page;
 
-  if (pageId?.startsWith("learning-")) {
+  if (pageId?.startsWith("learning-") || pageId?.startsWith("diagnostic-")) {
     const publishUrl = new URL(`../../publish/${pageId}.html`, window.location.href);
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.set("mode", "prototype");
@@ -35,6 +35,13 @@ if (!redirectFileProtocolToPreview()) {
       store.update((state) => ({
         ...state,
         attendanceModalOpen: true,
+      }));
+    }
+
+    if (pageId === "home" && debugModal === "diagnostic") {
+      store.update((state) => ({
+        ...state,
+        diagnosticModalOpen: true,
       }));
     }
 

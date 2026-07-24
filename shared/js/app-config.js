@@ -13,7 +13,6 @@ export const PAGE_IDS = [
   "records",
   "ranking",
   "constellations",
-  "my",
 ];
 
 export const PAGE_TITLES = {
@@ -31,7 +30,6 @@ export const PAGE_TITLES = {
   records: "기록",
   ranking: "랭킹",
   constellations: "별자리",
-  my: "마이",
   "docs-design-system": "Design System",
 };
 
@@ -50,7 +48,6 @@ export const NAV_ITEMS = [
   { id: "records", label: "기록", icon: "asset/icons/common/nav-records.svg" },
   { id: "ranking", label: "랭킹", icon: "asset/icons/common/nav-ranking.svg" },
   { id: "constellations", label: "별자리", icon: "asset/icons/common/nav-constellations.svg" },
-  { id: "my", label: "마이", icon: "asset/icons/common/nav-my.svg" },
 ];
 
 export const HOME_CONSTELLATION_COUNT = 4;

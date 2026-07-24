@@ -37,3 +37,13 @@ export async function loadLearningContentRaw() {
 export async function loadConstellationsRaw() {
   return loadJson("data/constellations.json");
 }
+
+const DIAGNOSTIC_FILES = {
+  "1": "data/diagnostic_content.json",
+  "4": "data/diagnostic_content_g4.json",
+};
+
+export async function loadDiagnosticContentRaw(grade = "1") {
+  const path = DIAGNOSTIC_FILES[String(grade)] ?? DIAGNOSTIC_FILES["1"];
+  return loadJson(path);
+}

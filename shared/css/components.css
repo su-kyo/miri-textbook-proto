@@ -1131,6 +1131,13 @@
   backdrop-filter: blur(8px);
 }
 
+.study-panel__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .study-panel__header {
   display: inline-flex;
   align-items: center;
@@ -1146,19 +1153,28 @@
   height: 13px;
 }
 
-.study-panel__rows {
+.study-panel__term {
+  flex: 0 0 auto;
+  color: var(--home-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.study-panel__lessons {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: 11px;
 }
 
-.study-panel__row {
+.study-panel__lesson-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   min-height: 56px;
-  padding: 8px;
+  padding: 10px 12px;
   border: 1px solid color-mix(in srgb, var(--home-avatar-surface) 30%, transparent);
   border-radius: 12px;
   background: color-mix(in srgb, var(--home-card) 70%, transparent);
@@ -1166,13 +1182,14 @@
   text-decoration: none;
 }
 
-.study-panel__lesson {
-  flex: 1 1 auto;
-  min-width: 0;
+.study-panel__lesson-card--action {
+  border-color: transparent;
+  background: var(--home-accent-lime);
+  color: var(--color-static-text-on-color);
 }
 
-.study-panel__lesson strong {
-  display: block;
+.study-panel__lesson-name {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1184,10 +1201,10 @@
 .study-panel__score {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 0 0 auto;
   color: var(--home-accent-teal);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
 }
 
@@ -1196,20 +1213,130 @@
   font-size: 18px;
 }
 
-.study-panel__cta {
+.study-panel__go {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  min-width: 88px;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--home-glass-strong);
+  color: var(--home-text-primary);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.study-panel__go--dark {
+  background: color-mix(in srgb, var(--home-surface-deep) 88%, #000);
+  color: #ffffff;
+}
+
+.study-panel__diagnostic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--home-avatar-surface) 30%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--home-card) 70%, transparent);
+  color: var(--home-text-primary);
+  text-align: left;
+}
+
+.study-panel__diagnostic:active {
+  transform: translateY(1px);
+}
+
+.diagnostic-modal {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 8px 4px 4px;
+  text-align: center;
+}
+
+.diagnostic-modal__desc {
+  margin: 0;
+  color: var(--home-text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.diagnostic-modal__caption {
+  margin: 0 0 10px;
+  color: var(--home-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.diagnostic-modal__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 28px;
+  border-radius: 12px;
   background: var(--home-accent-lime);
   color: var(--color-static-text-on-color);
   font-size: 16px;
   line-height: 1.5;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.diagnostic-modal__cta:active {
+  transform: translateY(1px);
+}
+
+/* 디버그 전용: 진단평가 학년 선택(dim 영역, 실제 기능 아님) */
+.diagnostic-grade-switch {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-static-black, #000) 62%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.diagnostic-grade-switch__tag {
+  padding: 0 4px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.diagnostic-grade-switch__btn {
+  min-height: 30px;
+  padding: 4px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.diagnostic-grade-switch__btn.is-active {
+  background: var(--home-accent-lime);
+  color: var(--color-static-text-on-color);
 }
 
 .catalog-heading {
@@ -1735,8 +1862,7 @@
 }
 
 .records-page,
-.ranking-page,
-.my-page {
+.ranking-page {
   display: grid;
   gap: 16px;
 }
@@ -1747,8 +1873,7 @@
 }
 
 .records-page__header,
-.ranking-page__header,
-.my-page__header {
+.ranking-page__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1757,8 +1882,7 @@
 }
 
 .records-page__title,
-.ranking-page__title,
-.my-page__title {
+.ranking-page__title {
   color: var(--home-text-primary);
   font-family: var(--font-body-eb);
   font-size: 16px;

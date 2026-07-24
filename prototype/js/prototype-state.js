@@ -1,5 +1,5 @@
-import { createViewStore } from "../../shared/js/view-state.js?v=20260724a";
-import { prepareInitialState } from "../../shared/js/page-renderer.js?v=20260724a";
+import { createViewStore } from "../../shared/js/view-state.js?v=20260724i";
+import { prepareInitialState } from "../../shared/js/page-renderer.js?v=20260724i";
 
 const STORAGE_KEY = "miri-textbook-prototype-state";
 const PROTOTYPE_DEBUG_DEFAULTS = {
@@ -17,6 +17,8 @@ const TRANSIENT_STATE_KEYS = [
   "catalogNoticeActiveId",
   "catalogNoticeOpen",
   "constellationOverlayFace",
+  "diagnosticGrade",
+  "diagnosticModalOpen",
   "flashingConstellationIds",
   "homeDebugOpen",
   "letterDebugOpen",

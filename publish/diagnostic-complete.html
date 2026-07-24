@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <base href="../../" />
-    <title>프로토타입 학습 완료</title>
+    <base href="../" />
+    <title>진단평가 완료</title>
     <link rel="stylesheet" href="shared/css/base.css?v=20260724i" />
     <link rel="stylesheet" href="shared/css/learning-shell.css?v=20260724i" />
     <link rel="stylesheet" href="shared/css/learning-components.css?v=20260724i" />
@@ -20,16 +20,16 @@
       })();
     </script>
   </head>
-  <body class="prototype-body learning-publish-body theme-light" data-page="learning-complete" data-mode="prototype">
+  <body class="publish-body learning-publish-body theme-light" data-page="diagnostic-complete">
     <div class="learning-preview">
-      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="프로토타입 학습 완료 화면">
+      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="진단평가 완료 화면">
         <header class="learning-header">
           <div class="learning-header__inner">
             <div class="learning-header__left">
-              <a class="learning-icon-button" href="prototype/pages/home.html" aria-label="학습 홈으로 이동" data-complete-back-link>
+              <a class="learning-icon-button" href="publish/home.html" aria-label="홈으로 이동" data-diagnostic-complete-back>
                 <img src="asset/icons/common/back.svg" alt="" />
               </a>
-              <div class="learning-curriculum" data-curriculum-label></div>
+              <div class="learning-curriculum">진단평가</div>
             </div>
             <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
               <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
@@ -46,26 +46,18 @@
               </div>
 
               <div class="complete-card__copy">
-                <h1 class="complete-card__title">학습 완료!</h1>
-                <p class="complete-card__subtitle" data-complete-round></p>
+                <h1 class="complete-card__title">진단평가가 완료되었습니다.</h1>
+                <p class="complete-card__subtitle">평가 결과는 선생님에게 확인해 주세요.</p>
               </div>
-
-              <div class="complete-card__score">
-                <p class="complete-card__score-label">이번 학습 점수</p>
-                <p class="complete-card__score-value" data-complete-score></p>
-              </div>
-
-              <p class="complete-card__caption">지난 결과는 기록에서 다시 확인할 수 있어요.</p>
             </section>
 
             <div class="complete-actions">
-              <a class="complete-actions__primary" href="prototype/pages/learning-result.html" data-complete-result-link>결과 보기</a>
-              <a class="complete-actions__secondary" href="prototype/pages/home.html" data-complete-home-link>학습 홈으로</a>
+              <a class="complete-actions__primary" href="publish/home.html" data-diagnostic-complete-home>학습 홈으로</a>
             </div>
           </div>
         </section>
       </main>
     </div>
-    <script type="module" src="publish/js/learning-publish-init.js?v=20260724i"></script>
+    <script type="module" src="publish/js/diagnostic-init.js?v=20260724i"></script>
   </body>
 </html>

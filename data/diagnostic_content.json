@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "2026-07-24.diagnostic.v2",
+  "assessment": {
+    "id": "diagnostic-korean-001",
+    "title": "진단평가",
+    "subject": "국어",
+    "questionCount": 15,
+    "flow": ["vocab", "passage-1", "reading-1", "passage-2", "reading-2"]
+  },
+  "passages": [
+    {
+      "id": "passage-1",
+      "title": "",
+      "image": null,
+      "imageNote": "원본 이미지(/data/elementary_textimg/new_1708571889.jpg) 미보유 — 텍스트만 렌더",
+      "paragraphs": [
+        "가랑가랑 가랑비가 가만가만 내려요.",
+        "나비 나비 노랑나비가 나풀나풀 나들이 가요.",
+        "다닥다닥 다슬기, 다닥다닥 대추.",
+        "라디오에서 노래가 나와요.",
+        "라랄라, 따라 불러요.",
+        "마을 집집마다 마늘밭",
+        "만들만들 커 가는 마늘",
+        "바둑점 콩콩 바둑이",
+        "바동바동 쫓아오는 바둑이",
+        "사과나무에 사과가 주렁주렁",
+        "사다리 타고 똑똑 따요.",
+        "아장아장 아가야,",
+        "아빠 손 잡고 어디 가니?",
+        "자전거가 자갈길을 달려요.",
+        "자자글자자글 소리가 나요.",
+        "차가 달려요.",
+        "큰 차, 작은 차 줄지어 달려요.",
+        "카멜레온을 찰칵찰칵 찍어요.",
+        "카메라로 찰칵찰칵 찍어요.",
+        "타닥타닥 마른 나뭇잎을 태워요.",
+        "타는 소리가 귀에 솔솔.",
+        "타는 냄새가 코에 흠흠.",
+        "파르르 찬 바람이 나뭇가지를 흔들어요.",
+        "파릇파릇 새싹 돋아날 봄을 기다려요.",
+        "하얀 눈이 하늘하늘 내려요.",
+        "하얀 얼굴, 하얀 몸통 하얀 눈사람을 만들어요."
+      ]
+    },
+    {
+      "id": "passage-2",
+      "title": "",
+      "image": null,
+      "imageNote": "원본 이미지(/data/elementary_textimg/A110098_1708591095.jpg) 미보유 — 텍스트만 렌더",
+      "paragraphs": [
+        "발표를 할 때는 바른 자세로 해야 합니다. 발표할 때의 바른 자세는 무엇일까요?",
+        "허리를 곧게 세웁니다. 손은 자연스럽게 내리고, 상황에 따라 자연스럽게 움직입니다. 그리고 다리는 편안하게 어깨너비만큼 자연스럽게 벌리고 서서 발표를 합니다. 발표를 원활하게 하려면 눈은 어떻게 해야 할까요? 눈은 듣는 사람을 바라봐야 합니다. 목소리는 알맞은 크기로 또박또박 말해야 합니다. 만약 발표를 할 때, 듣는 사람이 아닌 다른 곳을 바라보거나 삐딱하게 서 있으면 듣는 사람은 자신을 무시한다고 느껴서 기분이 좋지 않을 것입니다."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "V01",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "빛이 어떤 물체에 가려져 생긴 어두운 부분.",
+      "boxed": true,
+      "blank": false,
+      "options": ["햇볕", "그늘", "무지개", "노을"],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V02",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "깊고 넓게 파인 땅에 물이 고여 있는 곳.",
+      "boxed": true,
+      "blank": false,
+      "options": ["폭포", "바다", "시냇물", "연못"],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V03",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "하늘에서 사람이나 물건이 천천히 떨어지게 하는 데 쓰이는, 펼친 우산과 같은 모양의 장치.",
+      "boxed": true,
+      "blank": false,
+      "options": ["낙하산", "우산", "연", "풍선"],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V04",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "물이나 음식물이 목구멍이나 좁은 구멍으로 한꺼번에 넘어가는 소리. 또는 그 모양.",
+      "boxed": true,
+      "blank": false,
+      "options": ["아삭아삭", "오물오물", "꿀꺽", "후루룩"],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V05",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘연습’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "여러 사람 앞에서 자기 생각을 말함.",
+        "무엇을 잘할 수 있도록 반복하여 익힘.",
+        "하던 일을 멈추고 몸과 마음을 쉼.",
+        "남이 하는 일을 옆에서 도와줌."
+      ],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V06",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘어리둥절하다’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "몹시 기뻐서 마음이 들뜨다.",
+        "무서워서 몸이 자꾸 떨리다.",
+        "화가 나서 마음이 답답하다.",
+        "일이 돌아가는 상황을 잘 알지 못해서 정신이 얼떨떨하다."
+      ],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V07",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘초대하다’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "다른 사람에게 어떤 자리, 모임, 행사 등에 와 달라고 요청하다.",
+        "다른 사람에게 고마운 마음을 말로 전하다.",
+        "다른 사람의 물건을 잠깐 빌려 쓰다.",
+        "다른 사람이 하는 것을 보고 그대로 따라 하다."
+      ],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V08",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘그렁그렁’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "별빛이 밝게 빛나는 모양.",
+        "가슴이 빠르게 뛰는 모양.",
+        "눈에 눈물이 넘칠 듯이 가득 고인 모양.",
+        "웃음소리가 크게 나는 모양."
+      ],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V09",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "빈칸에 들어갈 알맞은 낱말은 무엇인가요?",
+      "stem": "태경이는 리코더를 {blank} 것을 좋아해요.",
+      "boxed": true,
+      "blank": true,
+      "options": ["연주하는", "노래하는", "춤추는", "달리는"],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V10",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "빈칸에 들어갈 알맞은 낱말은 무엇인가요?",
+      "stem": "달리기가 힘들었지만 나는 {blank} 않고 끝까지 달렸어요.",
+      "boxed": true,
+      "blank": true,
+      "options": ["시작하지", "포기하지", "출발하지", "도착하지"],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R01",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "'가'라는 글자를 사용하지 않은 글자는 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "'가랑가랑'이에요.",
+        "'가랑비'예요.",
+        "'다닥다닥'이에요.",
+        "'가만가만'이에요."
+      ],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R02",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "모음 'ㅔ'는 어디에 사용되었나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "'카메라로 찰칵찰칵'에 사용되었어요.",
+        "'새싹 돋아날'에 사용되었어요.",
+        "'가랑비가 가만가만'에 사용되었어요.",
+        "'하늘하늘 내려요'에 사용되었어요."
+      ],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R03",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "'만들어요'라는 글자에서 모음자가 자음자의 아래쪽에 있는 글자는 뭘까요?",
+      "boxed": false,
+      "blank": false,
+      "options": ["'만'과 '어'예요.", "'들'과 '요'예요.", "'만'과 '요'예요.", "'들'과 '어'예요."],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R04",
+      "section": "reading-2",
+      "passageId": "passage-2",
+      "instruction": null,
+      "stem": "발표를 할 때 허리는 어떻게 해야 하나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "양옆으로 움직여야 해요.",
+        "구부정하게 해야 해요.",
+        "허리를 앞으로 숙여야 해요.",
+        "허리를 곧게 세워야 해요."
+      ],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R05",
+      "section": "reading-2",
+      "passageId": "passage-2",
+      "instruction": null,
+      "stem": "발표를 할 때 다리는 어떻게 해야 하나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "한쪽 다리를 구부려요.",
+        "어깨너비만큼 자연스럽게 벌려요.",
+        "두 다리를 꼭 붙이고 서요.",
+        "두 다리를 번갈아가며 움직여요."
+      ],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    }
+  ],
+  "implementationNotes": {
+    "schema": "각 문항: instruction(지시문, 작게, null 가능) / stem(문제 텍스트, 크게, 필수) / boxed(문제 텍스트 박스 여부) / blank(stem 안 {blank} 토큰).",
+    "boxedRule": "boxed=true는 들여다볼 자료(뜻풀이 V01~04, 빈칸 예문 V09~10) — 지시문 동반. boxed=false는 질문 자체(V05~08, 독해 R01~05) — 지시문 없음.",
+    "answerKey": "원본 HTML에 정답 없음. answerIndex는 추정값이며 사람 검수 전까지 reviewNeeded:true. 진단평가 결과는 학생에게 노출하지 않으므로 데모 동작에는 영향 없음.",
+    "q11Wording": "R01 문항의 '글자를 사용하지 않은 글자' 워딩은 원문 그대로 유지(선택지는 낱말). 임의 수정 금지.",
+    "images": "지문 이미지 2장은 원본 경로(/data/elementary_textimg/)가 저장소에 없어 image:null로 두고 텍스트만 렌더."
+  }
+}

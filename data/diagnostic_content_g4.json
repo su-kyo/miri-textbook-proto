@@ -1,0 +1,261 @@
+{
+  "schemaVersion": "2026-07-24.diagnostic.v2",
+  "assessment": {
+    "id": "diagnostic-korean-g4-001",
+    "title": "진단평가",
+    "subject": "국어",
+    "grade": 4,
+    "questionCount": 15,
+    "flow": ["vocab", "passage-1", "reading-1"]
+  },
+  "passages": [
+    {
+      "id": "passage-1",
+      "title": "이야기의 흐름",
+      "image": null,
+      "imagePlaceholder": true,
+      "imagePlaceholderAfter": 2,
+      "imageNote": "원본 이미지(/data/elementary_textimg/A410082_1740536255.jpg) 미보유 — 자리 표시만 렌더",
+      "paragraphs": [
+        "이야기의 흐름이란 이야기가 어떻게 흘러가는지 진행되는 과정을 말합니다. 이야기의 흐름을 알면 인물의 변화, 사건의 연결 관계, 이야기가 펼쳐지는 방식 등을 이해하는 데 도움이 됩니다.",
+        "이야기를 읽을 때 흐름을 파악하려면 먼저 이야기 속 인물, 장소, 일어난 일을 찾아봅니다. 누가, 어디에서, 어떤 일을 겪는지 살펴보면 이야기가 어떻게 흘러가는지 이해할 수 있습니다. 다음으로 시간이나 장소가 바뀔 때마다 어떤 일이 일어났는지 살펴봅니다. 시간이 흐르거나 장소가 바뀔 때마다 새로운 일이 생기므로 이러한 변화를 주의 깊게 살펴보아야 합니다. 마지막으로 찾은 내용을 순서대로 정리하면 이야기의 흐름을 더욱 잘 이해할 수 있습니다.",
+        "「어머니의 시험」에서 한석봉이 겪은 일을 중심으로 이야기의 흐름을 살펴봅시다. 한양에서 한석봉은 사람들에게 명필로 인정받고 자신감을 얻어 고향집으로 돌아갑니다. 고향집에서 한석봉은 어머니가 어둠 속에서 글씨를 써보라고 하자 볼품없는 글씨를 쓰게 됩니다. 이 일을 계기로 한석봉은 자신의 부족함을 깨닫고 다시 한양으로 돌아가 공부에 전념하기로 결심합니다.",
+        "이러한 방법으로 이야기의 흐름을 파악하면 글의 주제를 더욱 깊이 이해할 수 있습니다. 「어머니의 시험」에서도 한석봉이 한양과 고향집에서 겪은 경험을 순서대로 정리하면, 부족함을 깨닫고 다시 노력하는 과정이 드러납니다. 이를 통해 노력과 끈기의 중요성을 자연스럽게 깨달을 수 있습니다."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "V01",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "어떤 일이나 이야기의 마지막.",
+      "boxed": true,
+      "blank": false,
+      "options": ["배경", "인물", "결말", "제목"],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V02",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "문제를 해결하는 데 도움이 되는 사실.",
+      "boxed": true,
+      "blank": false,
+      "options": ["단서", "소문", "변명", "규칙"],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V03",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "한 번만 쓰고 버리도록 만들어진 물건.",
+      "boxed": true,
+      "blank": false,
+      "options": ["기념품", "재활용품", "골동품", "일회용품"],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V04",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "다음 뜻에 알맞은 낱말은 무엇인가요?",
+      "stem": "뜨거운 기운.",
+      "boxed": true,
+      "blank": false,
+      "options": ["물기", "열기", "향기", "냉기"],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V05",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘경쟁’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "여러 사람이 힘을 합쳐 함께 일함.",
+        "어려움에 빠진 사람을 살펴 도와줌.",
+        "서로 의견을 주고받으며 이야기를 나눔.",
+        "어떤 분야에서 이기거나 앞서려고 서로 겨룸."
+      ],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V06",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘묵묵하다’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "몹시 시끄럽고 어수선하다.",
+        "성격이 급하여 참을성이 없다.",
+        "말없이 조용하다.",
+        "말이 많고 수다스럽다."
+      ],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V07",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘살아남다’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "죽을 뻔한 상황에서 목숨을 구하다.",
+        "위험에 빠진 다른 사람을 구해 내다.",
+        "죽은 사람을 다시 살려 내다.",
+        "오래 앓던 병이 씻은 듯이 낫다."
+      ],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V08",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": null,
+      "stem": "‘효과’의 뜻으로 알맞은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "어떤 일을 하기 전에 미리 세우는 계획.",
+        "어떠한 것을 하여 얻어지는 좋은 결과.",
+        "어떤 일을 하는 데 드는 시간과 비용.",
+        "일이 뜻대로 되지 않아 생긴 나쁜 결과."
+      ],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V09",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "빈칸에 들어갈 알맞은 낱말은 무엇인가요?",
+      "stem": "나는 오늘 {blank}을 자는 바람에 학교에 지각했다.",
+      "boxed": true,
+      "blank": true,
+      "options": ["늦잠", "낮잠", "단잠", "밤잠"],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "V10",
+      "section": "vocab",
+      "passageId": null,
+      "instruction": "빈칸에 들어갈 알맞은 낱말은 무엇인가요?",
+      "stem": "나는 주말에 미술관에서 전시회 {blank}을 했다.",
+      "boxed": true,
+      "blank": true,
+      "options": ["관찰", "관심", "관리", "관람"],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R01",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "이야기의 흐름이란 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "이야기에서 어려운 낱말의 뜻을 찾아보는 것을 말해요.",
+        "이야기가 어떻게 흘러가는지 진행되는 과정을 말해요.",
+        "이야기 속 장소의 모습을 그림으로 나타내는 것을 말해요.",
+        "이야기에 나온 인물의 이름을 모두 외우는 것을 말해요."
+      ],
+      "answerIndex": 1,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R02",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "이야기의 흐름을 파악하려면 가장 먼저 무엇을 해야 하나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "먼저 이야기 속 문장의 수를 세어 보아요.",
+        "먼저 모르는 낱말만 골라 공책에 옮겨 적어 보아요.",
+        "먼저 가장 마음에 드는 장면을 그림으로 그려 보아요.",
+        "먼저 이야기 속 인물, 장소, 일어난 일을 찾아보아요."
+      ],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R03",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "이야기 속 인물, 장소, 일어난 일을 찾아본 뒤에는 무엇을 살펴보아야 하나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "시간이나 장소가 바뀔 때마다 어떤 일이 일어났는지 살펴보아요.",
+        "인물들의 이름이 몇 글자인지 살펴보아요.",
+        "삽화에 어떤 색이 많이 쓰였는지 살펴보아요.",
+        "같은 낱말이 몇 번 나오는지 살펴보아요."
+      ],
+      "answerIndex": 0,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R04",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "이야기의 흐름을 더욱 잘 이해하려면 어떻게 하면 되나요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "찾은 내용을 마음에 드는 순서대로 바꾸면 이야기의 흐름을 더욱 잘 이해할 수 있어요.",
+        "찾은 내용을 문장의 길이순으로 정리하면 이야기의 흐름을 더욱 잘 이해할 수 있어요.",
+        "찾은 내용을 가나다순으로 정리하면 이야기의 흐름을 더욱 잘 이해할 수 있어요.",
+        "찾은 내용을 순서대로 정리하면 이야기의 흐름을 더욱 잘 이해할 수 있어요."
+      ],
+      "answerIndex": 3,
+      "reviewNeeded": true
+    },
+    {
+      "id": "R05",
+      "section": "reading-1",
+      "passageId": "passage-1",
+      "instruction": null,
+      "stem": "한석봉이 고향에서 깨달은 것은 무엇인가요?",
+      "boxed": false,
+      "blank": false,
+      "options": [
+        "어머니의 시험을 통해 자신이 이미 완벽하다고 생각했어요.",
+        "어머니의 시험을 통해 고향집에서 쉬는 것이 중요하다고 생각했어요.",
+        "어머니의 시험을 통해 자신의 부족함을 깨달았어요.",
+        "어머니의 시험을 통해 글씨 공부를 그만두기로 마음먹었어요."
+      ],
+      "answerIndex": 2,
+      "reviewNeeded": true
+    }
+  ],
+  "implementationNotes": {
+    "schema": "1학년과 동일 스키마 v2. instruction/stem/boxed/blank/options/answerIndex/reviewNeeded.",
+    "structureDiff": "지문 1개(passage-1)에 독해 R01~R05 전부 연결. flow는 [vocab, passage-1, reading-1]로 지문 블록 1개.",
+    "boxedRule": "boxed=true(V01~04 뜻풀이, V09~10 빈칸 예문)는 지시문 동반. boxed=false(V05~08, R01~05)는 지시문 없음.",
+    "image": "지문 이미지는 저장소에 없어 imagePlaceholder:true로 '이미지 들어올 자리' 표시만 렌더(imagePlaceholderAfter: 2 = 세 번째 문단 뒤).",
+    "answerKey": "원본 HTML에 정답 없음. answerIndex는 추정값이며 사람 검수 전까지 reviewNeeded:true. 진단평가 결과는 학생에게 노출하지 않으므로 데모 동작에는 영향 없음."
+  }
+}

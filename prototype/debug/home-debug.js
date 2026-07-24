@@ -1,4 +1,4 @@
-import { buildConstellationDebugMarkup } from "./constellation-debug.js?v=20260724a";
+import { buildConstellationDebugMarkup } from "./constellation-debug.js?v=20260724i";
 
 export function buildHomeDebugMarkup(state) {
   if (!state.homeDebugOpen) {

@@ -1,15 +1,15 @@
-import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260724a";
+import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260724i";
 import {
   buildConstellationCatalogCards,
   buildHomeConstellationCards,
   getConstellationById,
   getInitialHomeConstellations,
   loadConstellationCatalog,
-} from "./constellation-adapter.js?v=20260724a";
-import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260724a";
-import { resolveProjectUrl } from "./data-loader.js?v=20260724a";
-import { getLessonMeta } from "./learning-adapter.js?v=20260724a";
-import { vibrate } from "./haptics.js?v=20260724a";
+} from "./constellation-adapter.js?v=20260724i";
+import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260724i";
+import { resolveProjectUrl } from "./data-loader.js?v=20260724i";
+import { getLessonMeta } from "./learning-adapter.js?v=20260724i";
+import { vibrate } from "./haptics.js?v=20260724i";
 
 function escapeHtml(value = "") {
   return String(value)
@@ -50,6 +50,25 @@ const FLOW_TIMER_KEYS = [
 const flowTimers = new Map();
 const REWARD_STAR_ASSET = "asset/ui/constellation/star.png";
 const HOME_REWARD_SESSION_KEY = "miri-textbook-home-reward";
+const DIAGNOSTIC_STORAGE_KEY = "miri-textbook-diagnostic";
+const DIAGNOSTIC_GRADE_KEY = "miri-textbook-diagnostic-grade";
+
+function readDiagnosticGrade() {
+  try {
+    return localStorage.getItem(DIAGNOSTIC_GRADE_KEY) || "1";
+  } catch (error) {
+    return "1";
+  }
+}
+
+function clearDiagnosticRecord() {
+  try {
+    localStorage.removeItem(DIAGNOSTIC_STORAGE_KEY);
+  } catch (error) {
+    void error;
+  }
+}
+
 const LOCKED_CATALOG_MOCKS = [
   {
     id: "locked-mock-a",
@@ -271,14 +290,6 @@ function buildLockedCatalogMockCard(card) {
   `;
 }
 
-function formatHomeLessonLabel(lesson) {
-  if (!lesson) {
-    return "";
-  }
-
-  return `${lesson.grade}학년 ${lesson.semester}학기 ${lesson.round}회차 ${lesson.subject}`;
-}
-
 async function pickReplacementConstellationId(currentIds = [], lockedIds = []) {
   const catalog = await loadConstellationCatalog();
   const blocked = new Set([...currentIds, ...lockedIds].filter(Boolean));
@@ -365,7 +376,7 @@ function buildTopBar(pageId, mode, lesson, state) {
     `;
   }
 
-  if (["home", "constellations", "records", "ranking", "my"].includes(pageId)) {
+  if (["home", "constellations", "records", "ranking"].includes(pageId)) {
     const noticeAttributes = pageId === "constellations"
       ? `data-catalog-notice-open="true" aria-label="공지사항 열기"`
       : `data-attendance-open="true" aria-label="연속 출석 정보 열기"`;
@@ -675,6 +686,42 @@ function buildConstellationOverlay(card, state = {}) {
   `;
 }
 
+function buildDiagnosticEntryModal(state, mode) {
+  if (!state.diagnosticModalOpen) {
+    return "";
+  }
+
+  const quizHref = pageHref(mode, "diagnostic-quiz");
+  const grade = state.diagnosticGrade ?? "1";
+
+  // 프로토타입: 완료 여부와 무관하게 항상 첫 진입 상태로 노출.
+  const body = `
+      <p class="diagnostic-modal__desc">지금 실력을 확인해 보고,<br />꼭 맞는 학습을 추천받아요.</p>
+      <p class="diagnostic-modal__caption">(15문항, 약 10분 걸려요.)</p>
+      <a class="diagnostic-modal__cta" href="${quizHref}">시작하기</a>
+    `;
+
+  return `
+    <div class="modal-layer fade-in">
+      <div class="modal-backdrop" data-modal-close="diagnostic"></div>
+      <div class="diagnostic-grade-switch" data-diagnostic-grade-switch role="group" aria-label="디버그: 학년 선택">
+        <span class="diagnostic-grade-switch__tag">DEBUG</span>
+        <button type="button" class="diagnostic-grade-switch__btn ${grade === "1" ? "is-active" : ""}" data-diagnostic-grade="1">1학년</button>
+        <button type="button" class="diagnostic-grade-switch__btn ${grade === "4" ? "is-active" : ""}" data-diagnostic-grade="4">4학년</button>
+      </div>
+      <div class="modal-card modal-card--home slide-up">
+        <div class="modal-card__header modal-card__header--home">
+          <div class="modal-card__title modal-card__title--home">진단평가</div>
+          <button class="icon-button icon-button--clear" data-modal-close="diagnostic">×</button>
+        </div>
+        <div class="modal-card__body modal-card__body--home">
+          <div class="diagnostic-modal">${body}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function buildRewardModal(state) {
   const reward = state.rewardModal;
   if (!reward) {
@@ -771,6 +818,22 @@ function buildConstellationField(cards) {
   `;
 }
 
+function formatHomeLessonShort(lesson) {
+  if (!lesson) {
+    return "";
+  }
+
+  return `${lesson.round}회차 ${lesson.subject}`;
+}
+
+function formatHomeTerm(lesson) {
+  if (!lesson) {
+    return "";
+  }
+
+  return `${lesson.grade}학년 ${lesson.semester}학기`;
+}
+
 function buildStudyCard(mode, state) {
   const rows = state.homeLessonRows?.length ? state.homeLessonRows : DEFAULT_HOME_LESSON_ROWS;
   const currentRow = rows[0] ?? DEFAULT_HOME_LESSON_ROWS[0];
@@ -780,27 +843,27 @@ function buildStudyCard(mode, state) {
 
   return `
     <section class="study-panel">
-      <div class="study-panel__header">
-        <img src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
-        <span>오늘의 학습</span>
+      <div class="study-panel__top">
+        <div class="study-panel__header">
+          <img src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
+          <span>오늘의 학습</span>
+        </div>
+        <span class="study-panel__term">${escapeHtml(formatHomeTerm(currentRow))}</span>
       </div>
-      <div class="study-panel__rows">
-        <a class="study-panel__row" href="${resultHref}">
-          <div class="study-panel__lesson">
-            <strong>${escapeHtml(formatHomeLessonLabel(currentRow))}</strong>
-          </div>
-          <div class="study-panel__score">
-            <span>${state.learningScore ?? "42점"}</span>
-            <i>›</i>
-          </div>
+      <div class="study-panel__lessons">
+        <a class="study-panel__lesson-card" href="${resultHref}">
+          <strong class="study-panel__lesson-name">${escapeHtml(formatHomeLessonShort(currentRow))}</strong>
+          <span class="study-panel__score">${escapeHtml(state.learningScore ?? "42점")}<i>›</i></span>
         </a>
-        <a class="study-panel__row is-action" href="${learningStartHref}">
-          <div class="study-panel__lesson">
-            <strong>${escapeHtml(formatHomeLessonLabel(nextRow))}</strong>
-          </div>
-          <span class="study-panel__cta">시작하기</span>
+        <a class="study-panel__lesson-card study-panel__lesson-card--action" href="${learningStartHref}">
+          <strong class="study-panel__lesson-name">${escapeHtml(formatHomeLessonShort(nextRow))}</strong>
+          <span class="study-panel__go study-panel__go--dark" aria-hidden="true">→</span>
         </a>
       </div>
+      <button class="study-panel__diagnostic" type="button" data-diagnostic-open="true">
+        <strong class="study-panel__lesson-name">진단평가</strong>
+        <span class="study-panel__go" aria-hidden="true">→</span>
+      </button>
     </section>
   `;
 }
@@ -810,11 +873,16 @@ function resolveConstellationDebugState(constellationDebugState) {
 }
 
 function buildHomeBody(lesson, cards, mode, state) {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("reset") === "diagnostic") {
+    clearDiagnosticRecord();
+  }
+
   return `
     <div class="home-content">
       ${buildHomeHeaderStats({ todayScore: state.todayScore, streakDays: state.streakDays })}
-      ${buildConstellationField(cards)}
       ${buildStudyCard(mode, state)}
+      ${buildConstellationField(cards)}
     </div>
   `;
 }
@@ -1004,20 +1072,6 @@ function buildConstellationsBody(cards, state) {
         ${LOCKED_CATALOG_MOCKS.map((card) => buildLockedCatalogMockCard(card)).join("")}
       </section>
       ${buildConstellationNoticeModal(state)}
-    </div>
-  `;
-}
-
-function buildMyBody() {
-  return `
-    <div class="simple-shell-page my-page">
-      <section class="my-page__header">
-        <h1 class="my-page__title">마이</h1>
-      </section>
-      <section class="data-card">
-        <div class="data-card__title">내 학습 정보</div>
-        <div class="data-card__body">${HOME_PROFILE.gradeLabel} ${HOME_PROFILE.studentName}</div>
-      </section>
     </div>
   `;
 }
@@ -1234,10 +1288,6 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
     return buildConstellationsBody(cards, state);
   }
 
-  if (pageId === "my") {
-    return buildMyBody();
-  }
-
   if (pageId === "docs-design-system") {
     return buildDocsBody();
   }
@@ -1342,6 +1392,9 @@ function wireGlobalModalEvents(root, store) {
       if (target === "attendance") {
         store.update((state) => ({ ...state, attendanceModalOpen: false }));
       }
+      if (target === "diagnostic") {
+        store.update((state) => ({ ...state, diagnosticModalOpen: false }));
+      }
       if (target === "catalog-notice") {
         store.update((state) => ({ ...state, catalogNoticeOpen: false }));
       }
@@ -1389,6 +1442,31 @@ function wireGlobalModalEvents(root, store) {
         ...state,
         catalogNoticeOpen: true,
       }));
+    });
+  });
+
+  root.querySelectorAll("[data-diagnostic-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      store.update((state) => ({ ...state, diagnosticModalOpen: true }));
+    });
+  });
+
+  root.querySelectorAll("[data-diagnostic-grade]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const grade = button.getAttribute("data-diagnostic-grade") || "1";
+      try {
+        localStorage.setItem(DIAGNOSTIC_GRADE_KEY, grade);
+      } catch (error) {
+        void error;
+      }
+
+      const switchRoot = button.closest("[data-diagnostic-grade-switch]");
+      switchRoot?.querySelectorAll("[data-diagnostic-grade]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+      });
+
+      store.update((state) => ({ ...state, diagnosticGrade: grade }));
     });
   });
 
@@ -1569,6 +1647,8 @@ export async function prepareInitialState() {
     activeConstellationId: null,
     activeConstellationSource: null,
     attendanceModalOpen: false,
+    diagnosticModalOpen: false,
+    diagnosticGrade: readDiagnosticGrade(),
     avatarModalOpen: false,
     avatar: { ...DEFAULT_AVATAR },
     avatarDraft: null,
@@ -1719,7 +1799,7 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
   const nav = buildNav(pageId, mode);
   const isDocs = pageId === "docs-design-system";
   const isCompactShell = pageId === "login";
-  const usesHomeShell = ["home", "constellations", "records", "ranking", "my"].includes(pageId);
+  const usesHomeShell = ["home", "constellations", "records", "ranking"].includes(pageId);
   const shellClass = isDocs
     ? "docs-canvas"
     : `miri-shell ${isCompactShell ? "miri-shell--compact" : "miri-shell--app"} miri-shell--${pageId} ${usesHomeShell ? "home-shell" : ""}`;
@@ -1736,6 +1816,7 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
             ${buildToastLayer(state)}
             ${buildAttendanceModal(state)}
             ${buildAvatarModal(state)}
+            ${buildDiagnosticEntryModal(state, mode)}
             ${buildRewardModal(state)}
             ${buildConstellationOverlay(activeConstellation, state)}
             ${nav}
@@ -1786,7 +1867,7 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
 }
 
 function wireTouchZoomGuard(root, pageId) {
-  if (!["home", "records", "ranking", "constellations", "my"].includes(pageId)) {
+  if (!["home", "records", "ranking", "constellations"].includes(pageId)) {
     return;
   }
 

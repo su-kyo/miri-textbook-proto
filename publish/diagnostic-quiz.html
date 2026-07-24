@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <base href="../" />
-    <title>어휘 뜻 맞히기</title>
+    <title>진단평가</title>
     <link rel="stylesheet" href="shared/css/base.css?v=20260724i" />
     <link rel="stylesheet" href="shared/css/learning-shell.css?v=20260724i" />
     <link rel="stylesheet" href="shared/css/learning-components.css?v=20260724i" />
@@ -20,16 +20,16 @@
       })();
     </script>
   </head>
-  <body class="publish-body learning-publish-body theme-light" data-page="learning-vocab-mc">
+  <body class="publish-body learning-publish-body theme-light" data-page="diagnostic-quiz">
     <div class="learning-preview">
-      <main class="learning-shell learning-shell--header-48 learning-shell--footerless learning-shell--wide" aria-label="어휘 뜻 맞히기 화면">
+      <main class="learning-shell learning-shell--header-48 learning-shell--wide" aria-label="진단평가 화면">
         <header class="learning-header">
           <div class="learning-header__inner">
             <div class="learning-header__left">
-              <a class="learning-icon-button" href="publish/learning-vocab-letter.html" aria-label="이전 학습으로 돌아가기">
+              <a class="learning-icon-button" href="publish/home.html" aria-label="진단평가 나가기">
                 <img src="asset/icons/common/back.svg" alt="" />
               </a>
-              <div class="learning-curriculum" data-curriculum-label></div>
+              <div class="learning-curriculum" data-curriculum-label>진단평가</div>
             </div>
             <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
               <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
@@ -39,34 +39,28 @@
         </header>
 
         <section class="learning-content">
-          <div class="learning-content__inner learning-content__inner--quiz-top">
-            <div class="learning-step-info">
-              <strong>어휘 뜻 맞히기</strong>
-              <span>뜻을 읽고 알맞은 단어를 골라주세요.</span>
-            </div>
-
-            <section class="question-block question-block--vocab-mc">
-              <div class="learning-progress question-block__progress" data-mc-progress></div>
-              <article class="learning-card question-prompt-card">
-                <h1 class="question-prompt-card__title" data-mc-question></h1>
-              </article>
-              <div class="mc-options mc-options--grid" data-mc-options></div>
-            </section>
-          </div>
+          <div class="learning-content__inner learning-content__inner--quiz-top" data-diagnostic-root></div>
         </section>
 
+        <footer class="learning-footer">
+          <div class="learning-footer__inner learning-footer__inner--split">
+            <button class="learning-footer__prev" type="button" hidden data-diagnostic-prev>이전</button>
+            <button class="learning-footer__cta" type="button" aria-disabled="true" data-diagnostic-cta>다음</button>
+          </div>
+        </footer>
+
         <div class="learning-overlay-layer">
-          <section class="bottom-sheet learning-feedback-sheet learning-feedback-sheet--compact" hidden data-mc-sheet>
+          <section class="bottom-sheet bottom-sheet--full diagnostic-passage-sheet" hidden data-diagnostic-passage-sheet>
             <div class="bottom-sheet__panel">
-              <div class="bottom-sheet__handle"></div>
-              <div class="bottom-sheet__status" data-mc-status></div>
-              <p class="bottom-sheet__copy" data-mc-copy hidden></p>
-              <a class="bottom-sheet__cta" href="publish/learning-passage-cloze.html" data-mc-cta>다음 학습으로</a>
+              <article class="learning-card passage-card diagnostic-passage-sheet__card">
+                <div class="passage-card__body diagnostic-passage" data-diagnostic-passage-sheet-body></div>
+              </article>
+              <button class="diagnostic-passage-sheet__back" type="button" data-diagnostic-passage-close>문제 보기</button>
             </div>
           </section>
         </div>
       </main>
     </div>
-    <script type="module" src="publish/js/learning-publish-init.js?v=20260724i"></script>
+    <script type="module" src="publish/js/diagnostic-init.js?v=20260724i"></script>
   </body>
 </html>
