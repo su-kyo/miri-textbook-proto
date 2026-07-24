@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DEFAULT_PORT="${1:-8000}"
 PORT="$DEFAULT_PORT"
+PREVIEW_HOST="${PREVIEW_HOST:-0.0.0.0}"
 
 find_open_port() {
   local candidate="$1"
@@ -23,4 +24,5 @@ fi
 cd "$PROJECT_ROOT"
 echo "Starting preview server in $PROJECT_ROOT"
 echo "Open: http://localhost:$PORT/index.html"
-python3 -m http.server "$PORT" --bind 127.0.0.1
+echo "LAN:  http://$PREVIEW_HOST:$PORT/index.html"
+python3 -m http.server "$PORT" --bind "$PREVIEW_HOST"

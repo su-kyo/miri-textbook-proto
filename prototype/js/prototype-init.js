@@ -1,10 +1,10 @@
-import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260706g";
-import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260706g";
-import { renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260707a";
-import { createPrototypeStore } from "./prototype-state.js";
-import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js";
-import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js";
-import { wireConstellationDebug } from "../debug/constellation-debug.js";
+import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260724a";
+import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260724a";
+import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260724a";
+import { createPrototypeStore } from "./prototype-state.js?v=20260724a";
+import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260724a";
+import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js?v=20260724a";
+import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260724a";
 
 if (!redirectFileProtocolToPreview()) {
   const pageId = document.body.dataset.page;
@@ -47,15 +47,11 @@ if (!redirectFileProtocolToPreview()) {
         return buildLearningLetterDebugMarkup(state);
       }
 
-      if (currentPageId === "constellations" && state.homeDebugOpen) {
-        return buildHomeDebugMarkup(state);
-      }
-
       return "";
     }
 
     function attachPrototypeDebugHooks(root, currentPageId) {
-      if (currentPageId === "home" || currentPageId === "constellations") {
+      if (currentPageId === "home") {
         root.querySelectorAll(".home-notice").forEach((button) => {
           button.removeAttribute("data-attendance-open");
           button.setAttribute("data-home-debug-open", "true");
@@ -92,8 +88,16 @@ if (!redirectFileProtocolToPreview()) {
 
     await draw();
 
-    window.addEventListener("miri:prototype-acquire", () => {
-      startHomePrototypeAcquisition(store);
+    if (pageId === "home") {
+      const pendingReward = consumeHomeRewardPayload();
+      if (pendingReward) {
+        startHomePrototypeAcquisition(store, pendingReward.starCount, { source: pendingReward.source });
+      }
+    }
+
+    window.addEventListener("miri:prototype-acquire", (event) => {
+      const starCount = Number(event.detail?.starCount ?? 1);
+      startHomePrototypeAcquisition(store, starCount, { source: "debug" });
     });
   }
 }

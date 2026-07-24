@@ -1,28 +1,15 @@
-import { DEFAULT_AVATAR, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260706b";
+import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260724a";
 import {
   buildConstellationCatalogCards,
   buildHomeConstellationCards,
   getConstellationById,
   getInitialHomeConstellations,
   loadConstellationCatalog,
-} from "./constellation-adapter.js?v=20260707a";
-import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260706b";
-import { resolveProjectUrl } from "./data-loader.js?v=20260707a";
-import {
-  getHanjaCharacterRows,
-  getLearningProgress,
-  getLessonMeta,
-  getPageActivity,
-  getPassageClozeModel,
-  getPassageMcQuestions,
-  getPassageOxQuestions,
-  getVocabCardDeck,
-  getVocabLetterSet,
-  getVocabMatchingPairs,
-  getVocabMeaningQuestions,
-  getWordById,
-} from "./learning-adapter.js?v=20260706b";
-import { vibrate } from "./haptics.js?v=20260706b";
+} from "./constellation-adapter.js?v=20260724a";
+import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260724a";
+import { resolveProjectUrl } from "./data-loader.js?v=20260724a";
+import { getLessonMeta } from "./learning-adapter.js?v=20260724a";
+import { vibrate } from "./haptics.js?v=20260724a";
 
 function escapeHtml(value = "") {
   return String(value)
@@ -57,9 +44,42 @@ const FLOW_TIMER_KEYS = [
   "toast-charge",
   "charge-complete",
   "card-front",
+  "constellation-flash",
 ];
 
 const flowTimers = new Map();
+const REWARD_STAR_ASSET = "asset/ui/constellation/star.png";
+const HOME_REWARD_SESSION_KEY = "miri-textbook-home-reward";
+const LOCKED_CATALOG_MOCKS = [
+  {
+    id: "locked-mock-a",
+  },
+  {
+    id: "locked-mock-b",
+  },
+];
+const CONSTELLATION_NOTICE_POSTS = [
+  {
+    id: "notice-card-update",
+    title: "별자리 카드 업데이트 안내",
+    body: "별자리 카드는 학습 완료 후 별을 모아 완성하고, 홈에서 직접 받아 도감에 등록할 수 있어요.",
+  },
+  {
+    id: "notice-new-constellation",
+    title: "새로운 별자리 추가 예정",
+    body: "도감에는 88개 공식 별자리를 모두 준비해 두었고, 이후 이벤트용 mock 카드 예시도 함께 확인할 수 있어요.",
+  },
+  {
+    id: "notice-learning-reward",
+    title: "학습 보상 안내",
+    body: "오늘의 학습을 완료하면 별을 받고, 별이 홈의 별자리 슬롯으로 날아가며 진행도가 채워집니다.",
+  },
+  {
+    id: "notice-maintenance",
+    title: "서비스 점검 안내",
+    body: "프로토타입 검수 중에는 일부 별자리 목록과 카드 설명이 수시로 조정될 수 있어요.",
+  },
+];
 
 const DEFAULT_HOME_LESSON_ROWS = [
   { grade: 2, semester: 1, round: 1, subject: "국어" },
@@ -86,6 +106,169 @@ function setFlowTimer(key, callback, delay) {
     callback();
   }, delay);
   flowTimers.set(key, timer);
+}
+
+function wait(delay) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, delay);
+  });
+}
+
+function normalizeRewardCount(value) {
+  const parsed = Number(value);
+  if (Number.isNaN(parsed)) {
+    return 1;
+  }
+
+  return Math.max(1, Math.min(2, Math.round(parsed)));
+}
+
+function getConstellationDebugPreset(state) {
+  return Number(state.constellationDebug?.preset ?? 0);
+}
+
+function isHomeConstellationCollectible(state, cardId) {
+  if (!cardId) {
+    return false;
+  }
+
+  const slotState = state.homeConstellationState?.[cardId];
+  return (state.homeConstellationIds ?? []).includes(cardId) && (slotState?.percent ?? 0) >= 100;
+}
+
+function isHomeConstellationRewardReady(state, cardId) {
+  if (!cardId || !(state.homeConstellationIds ?? []).includes(cardId)) {
+    return false;
+  }
+
+  if (isHomeConstellationCollectible(state, cardId)) {
+    return true;
+  }
+
+  return Boolean(state.homeCards?.find((item) => item.id === cardId)?.completed);
+}
+
+function buildRewardModalCopy(starCount) {
+  return {
+    title: `별 ${starCount}개를 받았어요!`,
+    body: `오늘의 학습을 완료해서\n우주에 채울 별을 받았어요.`,
+  };
+}
+
+function getHomeRewardPayload() {
+  try {
+    const raw = window.sessionStorage.getItem(HOME_REWARD_SESSION_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+
+    return {
+      starCount: normalizeRewardCount(parsed.starCount),
+      source: parsed.source ?? "lesson-complete",
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+export function consumeHomeRewardPayload() {
+  const payload = getHomeRewardPayload();
+
+  try {
+    window.sessionStorage.removeItem(HOME_REWARD_SESSION_KEY);
+  } catch (error) {
+    void error;
+  }
+
+  return payload;
+}
+
+function buildRewardTargetIds(state, starCount) {
+  const ids = [...(state.homeConstellationIds ?? [])];
+  const preset = getConstellationDebugPreset(state);
+  const availableIds = ids.filter((id) => (state.homeConstellationState?.[id]?.percent ?? 0) < 100);
+  const shuffled = [...(availableIds.length ? availableIds : ids)].sort(() => Math.random() - 0.5);
+  const uniqueTargets = shuffled.slice(0, Math.min(starCount, shuffled.length));
+
+  return {
+    targetIds: uniqueTargets,
+    simulateOnly: preset >= 100,
+  };
+}
+
+function createRewardModalState(starCount, targets, simulateOnly, source = "debug") {
+  return {
+    starCount: normalizeRewardCount(starCount),
+    targetIds: [...targets],
+    simulateOnly,
+    source,
+    status: "open",
+  };
+}
+
+function getConstellationTargetRect(root, targetId) {
+  const slot = root.querySelector(`[data-constellation-id="${targetId}"] .home-constellation__media`) ??
+    root.querySelector(`[data-constellation-id="${targetId}"]`);
+  return slot?.getBoundingClientRect() ?? null;
+}
+
+async function flashConstellationSlot(store, targetId) {
+  store.update((state) => ({
+    ...state,
+    flashingConstellationIds: Array.from(new Set([...(state.flashingConstellationIds ?? []), targetId])),
+  }));
+
+  setFlowTimer(`constellation-flash-${targetId}`, () => {
+    store.update((state) => ({
+      ...state,
+      flashingConstellationIds: (state.flashingConstellationIds ?? []).filter((id) => id !== targetId),
+    }));
+  }, 280);
+}
+
+async function applyRewardArrival(store, targetId) {
+  const constellation = await getConstellationById(targetId);
+  if (!constellation) {
+    return;
+  }
+
+  const requiredLight = Math.max(1, Number(constellation.requiredLight) || 1);
+  store.update((state) => {
+    const current = state.homeConstellationState?.[targetId] ?? {};
+    const currentLight = Math.min(requiredLight, Math.max(0, Math.round((requiredLight * (current.percent ?? 0)) / 100)));
+    const nextLight = Math.min(requiredLight, currentLight + 1);
+    const nextPercent = Math.round((nextLight / requiredLight) * 100);
+    const isCompleted = nextLight >= requiredLight;
+
+    return {
+      ...state,
+      homeConstellationState: {
+        ...(state.homeConstellationState ?? {}),
+        [targetId]: {
+          ...current,
+          percent: nextPercent,
+          phase: isCompleted ? "completed" : "idle",
+        },
+      },
+    };
+  });
+
+  await flashConstellationSlot(store, targetId);
+}
+
+function buildLockedCatalogMockCard(card) {
+  return `
+    <article class="catalog-card catalog-card--sample is-locked" aria-hidden="true" data-constellation-id="${card.id}">
+      <div class="catalog-card__frame">
+        <img class="catalog-card__lock" src="${resolveProjectUrl("asset/icons/constellation/slot-lock.svg")}" alt="" />
+      </div>
+    </article>
+  `;
 }
 
 function formatHomeLessonLabel(lesson) {
@@ -183,6 +366,10 @@ function buildTopBar(pageId, mode, lesson, state) {
   }
 
   if (["home", "constellations", "records", "ranking", "my"].includes(pageId)) {
+    const noticeAttributes = pageId === "constellations"
+      ? `data-catalog-notice-open="true" aria-label="공지사항 열기"`
+      : `data-attendance-open="true" aria-label="연속 출석 정보 열기"`;
+
     return `
       <header class="home-header">
         <div class="home-topbar">
@@ -193,7 +380,7 @@ function buildTopBar(pageId, mode, lesson, state) {
               <span>${HOME_PROFILE.schoolName}</span>
             </span>
           </button>
-          <button class="home-notice" type="button" data-attendance-open="true" aria-label="연속 출석 정보 열기">
+          <button class="home-notice" type="button" ${noticeAttributes}>
             ${buildNoticeIcon()}
             <span class="home-notice__badge">1</span>
           </button>
@@ -213,118 +400,42 @@ function buildTopBar(pageId, mode, lesson, state) {
   `;
 }
 
-function buildProgress(progress) {
-  return `<div class="progress-row">${progress.map((item) => `<span class="progress-pill ${item.active ? "is-active" : ""}"></span>`).join("")}</div>`;
-}
-
-function buildLessonMetaCard(lesson, title, instruction, progress) {
-  return `
-    <section class="lesson-card">
-      <div class="lesson-card__eyebrow">
-        ${lesson.grade}학년 ${lesson.semester}학기 ${lesson.round}회차
-      </div>
-      <div class="lesson-card__title">${escapeHtml(title)}</div>
-      ${progress}
-      <div class="lesson-card__subtitle">${escapeHtml(instruction)}</div>
-    </section>
-  `;
-}
-
 function buildHomeConstellation(card) {
-  const previewAsset = card.completed || card.phase === "completed"
-    ? card.illustration ?? card.asset
-    : card.hidden ?? card.asset;
+  const previewAsset = card.asset ?? (card.completed ? card.illustration : card.hidden ?? card.illustration);
   const phaseClass = card.phase ? `is-${card.phase}` : "";
-  const chargeMarkup =
-    card.phase === "charging"
-      ? `<span class="home-constellation__charge" aria-hidden="true"><span class="home-constellation__charge-star">★</span></span>`
-      : "";
+  const flashClass = card.isFlashing ? "is-flashing" : "";
+  const openAttribute = card.completed ? `data-constellation-open="${card.id}"` : "";
+  const disabledAttribute = card.completed ? "" : 'disabled aria-disabled="true"';
 
   return `
-    <button class="home-constellation home-constellation-slot ${card.completed ? "is-complete" : "is-locked"} ${phaseClass}" type="button" ${card.completed ? `data-constellation-open="${card.id}"` : ""} data-constellation-id="${card.id}">
+    <button class="home-constellation home-constellation-slot ${card.completed ? "is-complete" : "is-locked"} ${phaseClass} ${flashClass}" type="button" ${openAttribute} ${disabledAttribute} data-constellation-id="${card.id}" data-constellation-source="home">
       <span class="constellation-blend-surface home-constellation__media" aria-hidden="true">
         <img class="home-constellation__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
       </span>
       <div class="home-constellation__progress home-progress-badge">
-        <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
+        <span class="home-constellation__progress-star">
+          <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/ui/constellation/star.png")}" alt="" />
+        </span>
         <div class="home-constellation__segments">
           ${card.progressSegments.map((segment) => `<span class="home-constellation__segment ${segment.active ? "is-active" : ""}"></span>`).join("")}
         </div>
       </div>
-      ${chargeMarkup}
     </button>
   `;
 }
 
 function buildCatalogConstellation(card) {
-  const previewAsset = card.completed || card.phase === "completed"
-    ? card.illustration ?? card.asset
-    : card.hidden ?? card.asset;
+  const previewAsset = card.illustration ?? card.asset ?? card.hidden;
   return `
-    <button class="catalog-card ${card.completed ? "is-complete" : "is-locked"}" type="button" ${card.completed ? `data-constellation-open="${card.id}"` : ""}>
+    <button class="catalog-card is-complete" type="button" data-constellation-open="${card.id}" data-constellation-source="catalog">
       <div class="catalog-card__frame">
-        ${
-          card.completed
-            ? `
-              <span class="constellation-blend-surface catalog-card__media" aria-hidden="true">
-                <img class="catalog-card__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
-              </span>
-            `
-            : ""
-        }
-        ${card.completed ? "" : `<img class="catalog-card__lock" src="${resolveProjectUrl("asset/icons/constellation/slot-lock.svg")}" alt="" />`}
+        <span class="constellation-blend-surface catalog-card__media" aria-hidden="true">
+          <img class="catalog-card__image" src="${resolveProjectUrl(previewAsset)}" alt="" ${safeImageAttributes()} />
+        </span>
       </div>
-      ${card.completed ? `<div class="catalog-card__chip">${escapeHtml(card.nameKo)}</div>` : ""}
+      <div class="catalog-card__chip">${escapeHtml(card.nameKo)}</div>
       ${card.duplicateCount > 1 ? `<span class="catalog-card__badge">×${card.duplicateCount}</span>` : ""}
     </button>
-  `;
-}
-
-function buildHanjaModal(word) {
-  if (!word) {
-    return "";
-  }
-
-  const characters = getHanjaCharacterRows(word);
-  const formatStrokeCount = (value) => {
-    if (value === null || value === undefined || value === "") {
-      return "";
-    }
-
-    return String(value).endsWith("획") ? String(value) : `${value}획`;
-  };
-  return `
-    <div class="modal-layer fade-in">
-      <div class="modal-backdrop" data-modal-close="hanja"></div>
-      <div class="modal-card slide-up">
-        <div class="modal-card__header">
-          <div class="modal-card__title">한자 상세</div>
-          <button class="icon-button icon-button--clear" data-modal-close="hanja">×</button>
-        </div>
-        <div class="modal-card__body">
-          <div class="data-card">
-            <div class="data-card__title" style="text-align:center;">${escapeHtml(word.word)}</div>
-          </div>
-          ${characters
-            .map(
-              (character) => `
-                <div class="hanja-group">
-                  <div>
-                    <div class="hanja-group__glyph">${escapeHtml(character.char)}</div>
-                    <div class="hanja-group__sound">${escapeHtml(character.meaningSound)}</div>
-                  </div>
-                  <div class="hanja-group__meta">
-                    <div class="hanja-group__meta-row"><span>부수</span><strong>${escapeHtml(character.radical)}</strong></div>
-                    <div class="hanja-group__meta-row"><span>총 획수</span><strong>${escapeHtml(formatStrokeCount(character.totalStrokes))}</strong></div>
-                    <div class="hanja-group__meta-row"><span>부수 외 획수</span><strong>${escapeHtml(formatStrokeCount(character.strokesExceptRadical))}</strong></div>
-                  </div>
-                </div>
-              `,
-            )
-            .join("")}
-        </div>
-      </div>
-    </div>
   `;
 }
 
@@ -523,23 +634,15 @@ function buildConstellationOverlay(card, state = {}) {
     return "";
   }
 
-  const isAcquirePreview = state.pendingReplacementSlotId === card.id && state.acquisitionState === "card-front-visible";
-  const showAcquireActions = isAcquirePreview && state.acquisitionState === "card-front-visible";
-  const showCloseButton = !isAcquirePreview;
-  const imageSrc = isAcquirePreview
-    ? card.illustration ?? card.asset ?? card.hidden
-    : card.completed
-      ? card.illustration ?? card.asset ?? card.hidden
-      : card.hidden ?? card.asset;
-  const modalLayerClass = isAcquirePreview ? "modal-layer" : "modal-layer fade-in";
-  const overlayCardClass = "overlay-card";
+  const isCollectible = state.activeConstellationSource === "home" && isHomeConstellationRewardReady(state, card.id);
+  const imageSrc = card.illustration ?? card.asset ?? card.hidden;
 
   return `
-    <div class="${modalLayerClass}">
+    <div class="modal-layer fade-in">
       <div class="modal-backdrop" data-modal-close="constellation"></div>
-      <div class="${overlayCardClass}">
+      <div class="overlay-card">
         <div class="constellation-overlay">
-          ${showCloseButton ? `<button class="constellation-overlay__close" data-modal-close="constellation">×</button>` : ""}
+          <button class="constellation-overlay__close" data-modal-close="constellation">×</button>
           <div class="constellation-card">
             <div class="constellation-card__inner">
               <div class="constellation-card-front constellation-overlay__card">
@@ -554,10 +657,10 @@ function buildConstellationOverlay(card, state = {}) {
                   </div>
                 </div>
                 ${
-                  showAcquireActions
+                  isCollectible
                     ? `
                         <div class="constellation-overlay__acquire-actions">
-                          <button class="constellation-overlay__receive-button" type="button" data-modal-close="constellation">카드 받기</button>
+                          <button class="constellation-overlay__receive-button" type="button" data-constellation-receive="${card.id}">받기</button>
                           <p class="constellation-overlay__acquire-caption">별자리 도감에서 확인할 수 있어요!</p>
                         </div>
                       `
@@ -572,21 +675,68 @@ function buildConstellationOverlay(card, state = {}) {
   `;
 }
 
-function buildBottomSheet(blank, active) {
-  if (!blank || !active) {
+function buildRewardModal(state) {
+  const reward = state.rewardModal;
+  if (!reward) {
+    return "";
+  }
+
+  const { title, body } = buildRewardModalCopy(reward.starCount);
+  const modalClass = reward.status === "launching" ? "reward-modal is-launching" : "reward-modal";
+  const stars = Array.from({ length: reward.starCount }, (_, index) => {
+    const sizeClass = reward.starCount === 2 ? "is-pair" : "is-single";
+    return `
+      <span class="reward-modal__star ${sizeClass}" data-reward-star-index="${index}">
+        <img src="${resolveProjectUrl(REWARD_STAR_ASSET)}" alt="" ${safeImageAttributes()} />
+      </span>
+    `;
+  }).join("");
+
+  return `
+    <div class="modal-layer fade-in" data-reward-modal>
+      <div class="modal-backdrop"></div>
+      <div class="${modalClass}">
+        <div class="reward-modal__dialog">
+          <div class="reward-modal__stars">${stars}</div>
+          <div class="reward-modal__copy">
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeHtml(body).replace("\n", "<br />")}</p>
+          </div>
+          <button class="reward-modal__confirm" type="button" data-reward-confirm="true">확인</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildConstellationNoticeModal(state) {
+  if (!state.catalogNoticeOpen) {
     return "";
   }
 
   return `
-    <div class="bottom-sheet-layer fade-in">
-      <div class="sheet-backdrop" data-sheet-close="cloze"></div>
-      <div class="sheet-card slide-up">
-        <div class="sheet-card__header">
-          <div class="sheet-card__title">선택지</div>
-          <button class="icon-button icon-button--clear" data-sheet-close="cloze">×</button>
+    <div class="modal-layer fade-in">
+      <div class="modal-backdrop" data-modal-close="catalog-notice"></div>
+      <div class="modal-card modal-card--home slide-up constellation-notice-modal">
+        <div class="modal-card__header modal-card__header--home">
+          <div class="modal-card__title modal-card__title--home">공지사항</div>
+          <button class="icon-button icon-button--clear" type="button" data-modal-close="catalog-notice">×</button>
         </div>
-        <div class="sheet-card__body">
-          ${blank.options.map((option) => `<button class="option-card" data-cloze-option="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}
+        <div class="modal-card__body modal-card__body--home">
+          <div class="notice-accordion">
+            ${CONSTELLATION_NOTICE_POSTS.map((post) => {
+              const expanded = state.catalogNoticeActiveId === post.id;
+              return `
+                <article class="notice-accordion__item ${expanded ? "is-open" : ""}">
+                  <button class="notice-accordion__trigger" type="button" data-notice-toggle="${post.id}" aria-expanded="${expanded ? "true" : "false"}">
+                    <span>${escapeHtml(post.title)}</span>
+                    <i>${expanded ? "−" : "+"}</i>
+                  </button>
+                  ${expanded ? `<div class="notice-accordion__body">${escapeHtml(post.body)}</div>` : ""}
+                </article>
+              `;
+            }).join("")}
+          </div>
         </div>
       </div>
     </div>
@@ -655,209 +805,18 @@ function buildStudyCard(mode, state) {
   `;
 }
 
-function statefulScore(lesson) {
-  return `${Math.max(lesson.round * 10, 0)}점`;
-}
-
 function resolveConstellationDebugState(constellationDebugState) {
-  return constellationDebugState ?? { mode: "default", percent: 35, acquiredIds: [] };
+  return constellationDebugState ?? { preset: 0 };
 }
 
 function buildHomeBody(lesson, cards, mode, state) {
   return `
     <div class="home-content">
       ${buildHomeHeaderStats({ todayScore: state.todayScore, streakDays: state.streakDays })}
-      ${buildStudyCard(mode, state)}
       ${buildConstellationField(cards)}
+      ${buildStudyCard(mode, state)}
     </div>
   `;
-}
-
-function flowLabel(flowKey) {
-  const map = {
-    vocabCard: "단어 카드",
-    vocabMatching: "짝맞추기",
-    vocabLetter: "글자 맞추기",
-    vocabMeaningMc: "어휘 객관식",
-    passageCloze: "지문 읽기",
-    passageOx: "OX",
-    passageMc: "지문 객관식",
-    complete: "학습 완료",
-  };
-  return map[flowKey] ?? flowKey;
-}
-
-function flowKeyToPage(flowKey) {
-  const map = {
-    vocabCard: "learning-vocab-card",
-    vocabMatching: "learning-vocab-matching",
-    vocabLetter: "learning-vocab-letter",
-    vocabMeaningMc: "learning-vocab-mc",
-    passageCloze: "learning-passage-cloze",
-    passageOx: "learning-passage-ox",
-    passageMc: "learning-passage-mc",
-    complete: "learning-complete",
-  };
-  return map[flowKey] ?? "home";
-}
-
-const LEARNING_NEXT_PAGE = {
-  "learning-vocab-card": "learning-vocab-matching",
-  "learning-vocab-matching": "learning-vocab-letter",
-  "learning-vocab-letter": "learning-vocab-mc",
-  "learning-vocab-mc": "learning-passage-cloze",
-  "learning-passage-cloze": "learning-passage-ox",
-  "learning-passage-ox": "learning-passage-mc",
-  "learning-passage-mc": "learning-complete",
-};
-
-function buildLearningNextAction(pageId, mode) {
-  const nextPage = LEARNING_NEXT_PAGE[pageId];
-  if (!nextPage) {
-    return "";
-  }
-
-  const label = nextPage === "learning-complete" ? "학습 완료" : "다음";
-  return `<a class="cta-button" href="${pageHref(mode, nextPage)}">${label}</a>`;
-}
-
-async function buildLearningBody(pageId, lesson, state, mode) {
-  const activity = await getPageActivity(pageId);
-  const progress = buildProgress(await getLearningProgress(pageId));
-  const header = buildLessonMetaCard(lesson, activity?.title ?? PAGE_TITLES[pageId], activity?.instruction ?? "", progress);
-
-  if (pageId === "learning-vocab-card") {
-    const cards = await getVocabCardDeck();
-    const word = cards[0];
-    return `${header}
-      <section class="word-card">
-        ${word?.hasHanja ? `<button class="word-card__info" data-hanja-open="${escapeHtml(word.id)}"><img src="${resolveProjectUrl("asset/icons/common/info-circle.svg")}" alt="" /></button>` : ""}
-        <div class="word-card__title">${escapeHtml(word?.word ?? "")}</div>
-        ${word?.hanja ? `<div class="word-card__hanja">${escapeHtml(word.hanja)}</div>` : ""}
-        <div class="word-card__meaning">${escapeHtml(word?.meaning ?? "")}</div>
-        ${(word?.examples ?? []).slice(0, 2).map((example) => `<div class="word-card__example">${escapeHtml(example)}</div>`).join("")}
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-vocab-matching") {
-    const pairs = await getVocabMatchingPairs();
-    return `${header}
-      <section class="matching-grid">
-        ${pairs
-          .flatMap((pair) => [
-            `<div class="option-card"><strong>${escapeHtml(pair.word)}</strong></div>`,
-            `<div class="option-card">${escapeHtml(pair.meaning)}</div>`,
-          ])
-          .join("")}
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-vocab-letter") {
-    const questions = await getVocabLetterSet(state.letterVariant ?? "lowerGrade");
-    const question = questions[0];
-    return `${header}
-      <section class="data-card">
-        <div class="data-card__title">${escapeHtml(question?.prompt ?? "")}</div>
-        <div class="segment-row" style="margin-top:16px;">
-          ${(question?.initials ?? []).map((initial) => `<span class="letter-tile">${escapeHtml(initial)}</span>`).join("")}
-        </div>
-      </section>
-      <section class="letter-grid">
-        ${(question?.tiles ?? []).map((tile) => `<button class="letter-tile">${escapeHtml(tile)}</button>`).join("")}
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-vocab-mc") {
-    const questions = await getVocabMeaningQuestions();
-    const question = questions[0];
-    return `${header}
-      <section class="data-card">
-        <div class="data-card__title">${escapeHtml(question?.question ?? "")}</div>
-      </section>
-      <section class="option-list">
-        ${(question?.options ?? []).map((option) => `<button class="option-card">${escapeHtml(option)}</button>`).join("")}
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-passage-cloze") {
-    const cloze = await getPassageClozeModel();
-    const activeBlankId = state.activeBlankId;
-    const activeBlank = cloze?.blanks?.find((blank) => blank.id === activeBlankId) ?? null;
-    const clozeMap = state.clozeAnswers ?? {};
-    return `${header}
-      <section class="data-card">
-        <div class="passage-title">${escapeHtml(cloze?.passageTitle ?? "")}</div>
-        <div class="passage-copy" style="margin-top:16px;">
-          ${(cloze?.blocks ?? [])
-            .map((block) => {
-              if (block.type === "blank") {
-                const value = clozeMap[block.id] ?? "";
-                return `<button class="blank-button" data-blank-open="${escapeHtml(block.id)}">${escapeHtml(value || "선택")}</button>`;
-              }
-              return escapeHtml(block.text ?? "").replaceAll("\n", "<br />");
-            })
-            .join("")}
-        </div>
-      </section>
-      ${buildLearningNextAction(pageId, mode)}
-      ${buildBottomSheet(activeBlank, Boolean(activeBlank))}`;
-  }
-
-  if (pageId === "learning-passage-ox") {
-    const questions = await getPassageOxQuestions();
-    const question = questions[0];
-    return `${header}
-      <section class="data-card">
-        <div class="data-card__title">${escapeHtml(question?.statement ?? "")}</div>
-      </section>
-      <section class="matching-grid">
-        <button class="option-card"><img src="${resolveProjectUrl("asset/icons/learning/o.svg")}" alt="" /></button>
-        <button class="option-card"><img src="${resolveProjectUrl("asset/icons/learning/x.svg")}" alt="" /></button>
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-passage-mc") {
-    const questions = await getPassageMcQuestions();
-    const question = questions[0];
-    return `${header}
-      <section class="data-card">
-        <div class="data-card__title">${escapeHtml(question?.question ?? "")}</div>
-      </section>
-      <section class="option-list">
-        ${(question?.options ?? []).map((option) => `<button class="option-card">${escapeHtml(option)}</button>`).join("")}
-      </section>
-      ${buildLearningNextAction(pageId, mode)}`;
-  }
-
-  if (pageId === "learning-complete") {
-    return `${header}
-      <section class="result-card">
-        <div class="result-card__title">학습 완료</div>
-        <div class="data-card__body">${escapeHtml(lesson.visibleHomeTitle ?? "")}</div>
-      </section>
-      <a class="cta-button" href="${pageHref(mode, "learning-result")}">결과 보기</a>`;
-  }
-
-  if (pageId === "learning-result") {
-    return `
-      <section class="result-card">
-        <div class="result-card__title">${escapeHtml(lesson.visibleHomeTitle ?? "")}</div>
-        <div class="info-list" style="margin-top:12px;">
-          <div class="option-card"><span>단어 카드</span><strong>10</strong></div>
-          <div class="option-card"><span>지문 읽기</span><strong>7</strong></div>
-          <div class="option-card"><span>오늘의 별빛</span><strong>+${lesson.round * 10}</strong></div>
-        </div>
-      </section>
-      <a class="cta-button" href="${pageHref(mode, "home")}">다음으로</a>
-    `;
-  }
-
-  return header;
 }
 
 const RECORD_FILTERS = [
@@ -1034,7 +993,7 @@ async function buildRankingBody(state) {
   `;
 }
 
-function buildConstellationsBody(cards) {
+function buildConstellationsBody(cards, state) {
   return `
     <div class="catalog-content">
       <section class="catalog-heading">
@@ -1042,7 +1001,9 @@ function buildConstellationsBody(cards) {
       </section>
       <section class="catalog-grid">
         ${cards.map((card) => buildCatalogConstellation(card)).join("")}
+        ${LOCKED_CATALOG_MOCKS.map((card) => buildLockedCatalogMockCard(card)).join("")}
       </section>
+      ${buildConstellationNoticeModal(state)}
     </div>
   `;
 }
@@ -1167,7 +1128,7 @@ function buildDocsBody() {
               ["마이", "asset/icons/common/nav-my.svg"],
               ["알림", "asset/icons/home/notice.svg"],
               ["잠금", "asset/icons/constellation/slot-lock.svg"],
-              ["별빛", "asset/icons/constellation/progress-star.svg"],
+              ["별빛", "asset/ui/constellation/star.png"],
             ]
               .map(
                 ([label, path]) => `
@@ -1196,10 +1157,12 @@ function buildDocsBody() {
           <div class="docs-preview-grid" style="margin-top:16px;">
             <div class="home-constellation is-complete">
               <span class="constellation-blend-surface home-constellation__media" aria-hidden="true">
-                <img class="home-constellation__image" src="${resolveProjectUrl("asset/constellations/gemini/gemini.webp")}" alt="" />
+                <img class="home-constellation__image" src="${resolveProjectUrl("asset/constellation/gemini/gemini.webp")}" alt="" />
               </span>
               <div class="home-constellation__progress">
-                <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/icons/constellation/progress-star.svg")}" alt="" />
+                <span class="home-constellation__progress-star">
+                  <img class="home-constellation__progress-icon" src="${resolveProjectUrl("asset/ui/constellation/star.png")}" alt="" />
+                </span>
                 <div class="home-constellation__segments">
                   <span class="home-constellation__segment is-active"></span>
                   <span class="home-constellation__segment is-active"></span>
@@ -1211,7 +1174,7 @@ function buildDocsBody() {
             <div class="catalog-card is-complete">
               <div class="catalog-card__frame">
                 <span class="constellation-blend-surface catalog-card__media" aria-hidden="true">
-                  <img class="catalog-card__image" src="${resolveProjectUrl("asset/constellations/circinus/circinus.webp")}" alt="" />
+                  <img class="catalog-card__image" src="${resolveProjectUrl("asset/constellation/circinus/circinus.webp")}" alt="" />
                 </span>
               </div>
               <div class="catalog-card__chip">컴퍼스자리</div>
@@ -1239,18 +1202,17 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
   }
 
   if (pageId === "home") {
-    const cards = await buildHomeConstellationCards(
+    const cards = (await buildHomeConstellationCards(
       state.homeConstellationIds ?? [],
       state.homeConstellationState ?? {},
       constellationDebugState,
       Math.random,
-    );
+    )).map((card) => ({
+      ...card,
+      isFlashing: (state.flashingConstellationIds ?? []).includes(card.id),
+    }));
     state.homeCards = cards;
     return buildHomeBody(lesson, cards, mode, state);
-  }
-
-  if (pageId.startsWith("learning-")) {
-    return buildLearningBody(pageId, lesson, state, mode);
   }
 
   if (pageId === "records") {
@@ -1269,7 +1231,7 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
       Math.random,
     );
     state.catalogCards = cards;
-    return buildConstellationsBody(cards);
+    return buildConstellationsBody(cards, state);
   }
 
   if (pageId === "my") {
@@ -1283,82 +1245,161 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
   return "";
 }
 
+async function handleConstellationReceive(root, store, constellationId) {
+  const current = store.getState();
+  if (!isHomeConstellationRewardReady(current, constellationId)) {
+    return;
+  }
+
+  const replacementId = await pickReplacementConstellationId(current.homeConstellationIds ?? [], [
+    ...(current.recentConstellationIds ?? []),
+    constellationId,
+  ]);
+
+  store.update((state) => ({
+    ...state,
+    activeConstellationId: null,
+    activeConstellationSource: null,
+    constellationOverlayFace: "front",
+  }));
+
+  await wait(16);
+
+  const slot = root.querySelector(`[data-constellation-id="${constellationId}"]`);
+  await slot?.animate(
+    [
+      { transform: "scale(1)", opacity: 1 },
+      { transform: "scale(0.85)", opacity: 0 },
+    ],
+    {
+      duration: 260,
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+      fill: "forwards",
+    },
+  )?.finished?.catch(() => null);
+
+  store.update((state) => {
+    const nextIds = [...(state.homeConstellationIds ?? [])];
+    const slotIndex = nextIds.indexOf(constellationId);
+    if (slotIndex !== -1 && replacementId) {
+      nextIds[slotIndex] = replacementId;
+    }
+
+    return {
+      ...state,
+      homeConstellationIds: nextIds,
+      homeConstellationState: {
+        ...(state.homeConstellationState ?? {}),
+        [constellationId]: {
+          ...(state.homeConstellationState?.[constellationId] ?? {}),
+          duplicateCount: 0,
+          phase: "collected",
+        },
+        ...(replacementId
+          ? {
+              [replacementId]: {
+                percent: 0,
+                duplicateCount: 0,
+                phase: "idle",
+              },
+            }
+          : {}),
+      },
+      catalogConstellationState: {
+        ...(state.catalogConstellationState ?? {}),
+        [constellationId]: {
+          percent: 100,
+          duplicateCount: (state.catalogConstellationState?.[constellationId]?.duplicateCount ?? 0) + 1,
+        },
+      },
+      recentConstellationIds: Array.from(new Set([constellationId, ...(state.recentConstellationIds ?? [])])),
+    };
+  });
+
+  await wait(16);
+
+  const replacementSlot = replacementId ? root.querySelector(`[data-constellation-id="${replacementId}"]`) : null;
+  await replacementSlot?.animate(
+    [
+      { transform: "scale(0.92)", opacity: 0 },
+      { transform: "scale(1)", opacity: 1 },
+    ],
+    {
+      duration: 280,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fill: "both",
+    },
+  )?.finished?.catch(() => null);
+}
+
 function wireGlobalModalEvents(root, store) {
   root.querySelectorAll("[data-modal-close]").forEach((button) => {
-    button.addEventListener("click", async () => {
+    button.addEventListener("click", () => {
       const target = button.getAttribute("data-modal-close");
-      if (target === "hanja") {
-        store.update((state) => ({ ...state, hanjaModalWordId: null }));
-      }
       if (target === "avatar") {
         store.update((state) => ({ ...state, avatarModalOpen: false, avatarDraft: null }));
       }
       if (target === "attendance") {
         store.update((state) => ({ ...state, attendanceModalOpen: false }));
       }
+      if (target === "catalog-notice") {
+        store.update((state) => ({ ...state, catalogNoticeOpen: false }));
+      }
       if (target === "constellation") {
-        clearFlowTimers();
-        const current = store.getState();
-        const slotId = current.pendingReplacementSlotId;
-
-        if (slotId) {
-          const replacementId = await pickReplacementConstellationId(current.homeConstellationIds ?? [], [
-            ...(current.recentConstellationIds ?? []),
-            slotId,
-          ]);
-          store.update((state) => {
-            const nextIds = [...(state.homeConstellationIds ?? [])];
-            const slotIndex = nextIds.indexOf(slotId);
-            if (slotIndex !== -1 && replacementId) {
-              nextIds[slotIndex] = replacementId;
-            }
-
-            return {
-              ...state,
-              activeConstellationId: null,
-              constellationOverlayFace: "front",
-              pendingReplacementSlotId: null,
-              acquisitionState: "slot-replacing",
-              homeConstellationIds: nextIds,
-              homeConstellationState: {
-                ...(state.homeConstellationState ?? {}),
-                [replacementId]: {
-                  percent: 0,
-                  duplicateCount: 0,
-                  phase: "slot-replacing",
-                },
-              },
-              recentConstellationIds: Array.from(new Set([...(state.recentConstellationIds ?? []), slotId])),
-            };
-          });
-
-          setFlowTimer("toast-charge", () => {
-            store.update((state) => ({
-              ...state,
-              acquisitionState: "idle",
-              homeConstellationState: {
-                ...(state.homeConstellationState ?? {}),
-                [replacementId]: {
-                  ...(state.homeConstellationState?.[replacementId] ?? {}),
-                  phase: "idle",
-                },
-              },
-            }));
-          }, 320);
-        } else {
-          store.update((state) => ({
-            ...state,
-            activeConstellationId: null,
-            constellationOverlayFace: "front",
-          }));
-        }
+        store.update((state) => ({
+          ...state,
+          activeConstellationId: null,
+          activeConstellationSource: null,
+          constellationOverlayFace: "front",
+        }));
       }
     });
   });
 
-  root.querySelectorAll("[data-sheet-close='cloze']").forEach((button) => {
+  root.querySelectorAll("[data-reward-confirm]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const reward = store.getState().rewardModal;
+      if (!reward) {
+        return;
+      }
+
+      await runRewardFlight(root, store, reward);
+    });
+  });
+
+  root.querySelectorAll("[data-notice-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
-      store.update((state) => ({ ...state, activeBlankId: null }));
+      const noticeId = button.getAttribute("data-notice-toggle");
+      store.update((state) => {
+        if (!noticeId || state.catalogNoticeActiveId === noticeId) {
+          return state;
+        }
+
+        return {
+          ...state,
+          catalogNoticeActiveId: noticeId,
+        };
+      });
+    });
+  });
+
+  root.querySelectorAll("[data-catalog-notice-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      store.update((state) => ({
+        ...state,
+        catalogNoticeOpen: true,
+      }));
+    });
+  });
+
+  root.querySelectorAll("[data-constellation-receive]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const constellationId = button.getAttribute("data-constellation-receive");
+      if (!constellationId) {
+        return;
+      }
+
+      await handleConstellationReceive(root, store, constellationId);
     });
   });
 }
@@ -1387,6 +1428,7 @@ function wireHomeEvents(root, store) {
   root.querySelectorAll("[data-constellation-open]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.getAttribute("data-constellation-open");
+      const source = button.getAttribute("data-constellation-source") ?? (button.classList.contains("catalog-card") ? "catalog" : "home");
       const homeContent = root.querySelector(".page-content--home");
       const constellationContent = root.querySelector(".page-content--constellations");
       if (homeContent) {
@@ -1398,8 +1440,8 @@ function wireHomeEvents(root, store) {
       store.update((state) => ({
         ...state,
         activeConstellationId: id,
+        activeConstellationSource: source,
         constellationOverlayFace: "front",
-        pendingReplacementSlotId: null,
       }));
       vibrate(12);
     });
@@ -1483,48 +1525,6 @@ function wireAvatarEvents(root, store) {
   });
 }
 
-function wireHanjaEvents(root, store) {
-  root.querySelectorAll("[data-hanja-open]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const wordId = button.getAttribute("data-hanja-open");
-      store.update((state) => ({ ...state, hanjaModalWordId: wordId }));
-    });
-  });
-}
-
-function wireClozeEvents(root, store, cloze) {
-  root.querySelectorAll("[data-blank-open]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const blankId = button.getAttribute("data-blank-open");
-      store.update((state) => ({ ...state, activeBlankId: blankId }));
-    });
-  });
-
-  root.querySelectorAll("[data-cloze-option]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const blankId = store.getState().activeBlankId;
-      if (!blankId) {
-        return;
-      }
-
-      const value = button.getAttribute("data-cloze-option");
-      const blank = cloze?.blanks?.find((item) => item.id === blankId);
-      const answers = { ...(store.getState().clozeAnswers ?? {}), [blankId]: value };
-      const correct = blank?.answer === value;
-      button.classList.add(correct ? "is-correct" : "is-wrong");
-      if (!correct) {
-        button.classList.add("shake");
-      }
-      vibrate(correct ? 16 : [10, 24, 10]);
-      if (correct) {
-        window.setTimeout(() => {
-          store.update((state) => ({ ...state, clozeAnswers: answers, activeBlankId: null }));
-        }, 160);
-      }
-    });
-  });
-}
-
 export async function prepareInitialState() {
   const preferredHomeIds = ["gemini", "perseus", "leo", "lyra"];
   const preferredHomeConstellations = await Promise.all(preferredHomeIds.map((id) => getConstellationById(id)));
@@ -1567,7 +1567,7 @@ export async function prepareInitialState() {
     catalogConstellationState,
     recentConstellationIds,
     activeConstellationId: null,
-    hanjaModalWordId: null,
+    activeConstellationSource: null,
     attendanceModalOpen: false,
     avatarModalOpen: false,
     avatar: { ...DEFAULT_AVATAR },
@@ -1579,80 +1579,116 @@ export async function prepareInitialState() {
     homeLessonRows: DEFAULT_HOME_LESSON_ROWS,
     activeToast: null,
     constellationOverlayFace: "front",
-    pendingReplacementSlotId: null,
-    acquisitionState: "idle",
-    letterVariant: "lowerGrade",
-    activeBlankId: null,
-    clozeAnswers: {},
+    rewardModal: null,
+    flashingConstellationIds: [],
+    catalogNoticeOpen: false,
+    catalogNoticeActiveId: CONSTELLATION_NOTICE_POSTS[0]?.id ?? null,
   };
 }
 
-function getAcquisitionTargetId(state) {
-  const candidates = Object.entries(state.homeConstellationState ?? {})
-    .filter(([, value]) => (value?.percent ?? 0) < 100)
-    .sort((left, right) => (right[1]?.percent ?? 0) - (left[1]?.percent ?? 0));
-
-  return candidates[0]?.[0] ?? state.homeConstellationIds?.[0] ?? null;
-}
-
-export function startHomePrototypeAcquisition(store, explicitTargetId = null) {
-  const current = store.getState();
-  const targetId = explicitTargetId ?? getAcquisitionTargetId(current);
-
-  if (!targetId) {
+async function animateRewardStar(startRect, targetRect) {
+  if (!startRect || !targetRect) {
     return;
   }
 
-  clearFlowTimers();
-  store.update((state) => {
-    const nextHomeState = {
-      ...(state.homeConstellationState ?? {}),
-      [targetId]: {
-        ...(state.homeConstellationState?.[targetId] ?? {}),
-        phase: "charging",
-      },
-    };
+  const layer = document.createElement("div");
+  layer.className = "reward-flight-layer";
+  const star = document.createElement("img");
+  star.className = "reward-flight-star";
+  star.src = resolveProjectUrl(REWARD_STAR_ASSET);
+  star.alt = "";
+  star.style.left = `${startRect.left + startRect.width / 2 - 18}px`;
+  star.style.top = `${startRect.top + startRect.height / 2 - 18}px`;
+  layer.appendChild(star);
+  document.body.appendChild(layer);
 
-    return {
-      ...state,
-      activeToast: "별자리에 별빛이 채워지고 있어요…",
-      acquisitionState: "charging",
-      homeDebugOpen: false,
-      homeConstellationState: nextHomeState,
-    };
-  });
+  const dx = targetRect.left + targetRect.width / 2 - (startRect.left + startRect.width / 2);
+  const dy = targetRect.top + targetRect.height / 2 - (startRect.top + startRect.height / 2);
+  const controlY = dy * 0.42 - 112;
+  const animation = star.animate(
+    [
+      { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)", opacity: 1, offset: 0 },
+      { transform: "translate3d(0, -18px, 0) scale(1.16) rotate(-8deg)", opacity: 1, offset: 0.18 },
+      { transform: `translate3d(${dx * 0.48}px, ${controlY}px, 0) scale(1.02) rotate(132deg)`, opacity: 1, offset: 0.62 },
+      { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.84) rotate(244deg)`, opacity: 1, offset: 0.9 },
+      { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.32) rotate(270deg)`, opacity: 0, offset: 1 },
+    ],
+    {
+      duration: 1480,
+      easing: "cubic-bezier(0.18, 0.72, 0.24, 1)",
+      fill: "forwards",
+    },
+  );
 
-  setFlowTimer("charge-complete", () => {
-    store.update((state) => {
-      const targetCard = state.homeConstellationState?.[targetId] ?? {};
-      const targetName = state.homeCards?.find((item) => item.id === targetId)?.nameKo ?? "별자리";
-      return {
-        ...state,
-        activeToast: `${targetName} 카드를 획득했어요!`,
-        acquisitionState: "completed",
-        homeConstellationState: {
-          ...(state.homeConstellationState ?? {}),
-          [targetId]: {
-            ...targetCard,
-            percent: 100,
-            duplicateCount: targetCard.duplicateCount ?? 0,
-            phase: "completed",
-          },
-        },
-      };
-    });
-  }, 1200);
+  await animation.finished.catch(() => null);
+  layer.remove();
+}
 
-  setFlowTimer("card-front", () => {
-    store.update((state) => ({
-      ...state,
-      activeToast: null,
-      acquisitionState: "card-front-visible",
-      activeConstellationId: targetId,
-      constellationOverlayFace: "front",
-      pendingReplacementSlotId: targetId,
-    }));
-  }, 1880);
+async function runRewardFlight(root, store, reward) {
+  const modal = root.querySelector("[data-reward-modal]");
+  const stars = [...(modal?.querySelectorAll("[data-reward-star-index]") ?? [])];
+  const startRects = stars.map((node) => node.getBoundingClientRect());
+
+  store.update((state) => ({
+    ...state,
+    rewardModal: state.rewardModal ? { ...state.rewardModal, status: "launching" } : null,
+    homeDebugOpen: false,
+  }));
+
+  await wait(140);
+
+  for (let index = 0; index < reward.targetIds.length; index += 1) {
+    const targetId = reward.targetIds[index];
+    const startRect = startRects[index] ?? startRects[startRects.length - 1] ?? null;
+    const targetRect = getConstellationTargetRect(root, targetId);
+    await animateRewardStar(startRect, targetRect);
+
+    if (!reward.simulateOnly) {
+      await applyRewardArrival(store, targetId);
+    }
+
+    await wait(40);
+  }
+
+  store.update((state) => ({
+    ...state,
+    rewardModal: null,
+  }));
+}
+
+export function startRewardFlow(store, starCount = 1, options = {}) {
+  const current = store.getState();
+  if (current.rewardModal) {
+    return false;
+  }
+
+  const normalizedCount = normalizeRewardCount(starCount);
+  const rewardTargets = options.targetIds?.length
+    ? { targetIds: [...options.targetIds].slice(0, normalizedCount), simulateOnly: Boolean(options.simulateOnly) }
+    : buildRewardTargetIds(current, normalizedCount);
+
+  if (!rewardTargets.targetIds.length && !rewardTargets.simulateOnly) {
+    return false;
+  }
+
+  store.update((state) => ({
+    ...state,
+    rewardModal: createRewardModalState(
+      normalizedCount,
+      rewardTargets.targetIds,
+      rewardTargets.simulateOnly,
+      options.source ?? "debug",
+    ),
+    activeConstellationId: null,
+    activeConstellationSource: null,
+    homeDebugOpen: false,
+  }));
+
+  return true;
+}
+
+export function startHomePrototypeAcquisition(store, starCount = 1, options = {}) {
+  return startRewardFlow(store, starCount, options);
 }
 
 export async function renderPage({ pageId, mode, mount, store, renderDebugPanels, constellationDebugState = null }) {
@@ -1667,7 +1703,6 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
   state.avatarButtonMarkup = await buildAvatarMarkup(state.avatar, { small: true });
   state.avatarDraftMarkup = await buildAvatarMarkup(state.avatarDraft ?? state.avatar);
   const body = await buildPageBody(pageId, lesson, state, mode, { constellationDebugState });
-  const activeWord = state.hanjaModalWordId ? await getWordById(state.hanjaModalWordId) : null;
   const activeConstellation = state.activeConstellationId
     ? state.homeCards?.find((item) => item.id === state.activeConstellationId) ??
       state.catalogCards?.find((item) => item.id === state.activeConstellationId) ??
@@ -1675,14 +1710,13 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
     : null;
   if (activeConstellation) {
     activeConstellation.overlayFace = state.constellationOverlayFace ?? "front";
-    if (state.pendingReplacementSlotId === activeConstellation.id) {
+    if (isHomeConstellationCollectible(state, activeConstellation.id)) {
       activeConstellation.completed = true;
       activeConstellation.asset = activeConstellation.illustration ?? activeConstellation.asset;
     }
   }
   const topBar = buildTopBar(pageId, mode, lesson, state);
   const nav = buildNav(pageId, mode);
-  const cloze = pageId === "learning-passage-cloze" ? await getPassageClozeModel() : null;
   const isDocs = pageId === "docs-design-system";
   const isCompactShell = pageId === "login";
   const usesHomeShell = ["home", "constellations", "records", "ranking", "my"].includes(pageId);
@@ -1700,9 +1734,9 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
             <main class="page-content page-content--${pageId}">${body}</main>
             ${renderDebugPanels ? renderDebugPanels({ pageId, state }) : ""}
             ${buildToastLayer(state)}
-            ${buildHanjaModal(activeWord)}
             ${buildAttendanceModal(state)}
             ${buildAvatarModal(state)}
+            ${buildRewardModal(state)}
             ${buildConstellationOverlay(activeConstellation, state)}
             ${nav}
           </div>
@@ -1714,7 +1748,6 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
   wireGlobalModalEvents(mount, store);
   wireHomeEvents(mount, store);
   wireAvatarEvents(mount, store);
-  wireHanjaEvents(mount, store);
   wireTouchZoomGuard(mount, pageId);
 
   if (pageId === "constellations") {
@@ -1737,10 +1770,6 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
       }
       nextHomeContent.scrollTop = Number(retainedHomeScrollTop) || 0;
     });
-  }
-
-  if (pageId === "learning-passage-cloze") {
-    wireClozeEvents(mount, store, cloze);
   }
 
   if (pageId === "docs-design-system") {

@@ -9,14 +9,19 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js";
-
-const TAP_ICON = `
-  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M6.6 1.4C6.6 0.9 6.95 0.5 7.45 0.5C7.95 0.5 8.3 0.9 8.3 1.4V7.05L9.05 6.3C9.4 5.95 9.95 5.95 10.3 6.3C10.65 6.65 10.65 7.2 10.3 7.55L7.95 9.9C7.6 10.25 7.05 10.25 6.7 9.9L4.35 7.55C4 7.2 4 6.65 4.35 6.3C4.7 5.95 5.25 5.95 5.6 6.3L6.6 7.3V1.4Z" fill="currentColor"/>
-    <path d="M3 10.1C3 9.6 3.4 9.2 3.9 9.2C4.4 9.2 4.8 9.6 4.8 10.1V10.55C4.8 11.5 5.55 12.25 6.5 12.25H9.5C10.45 12.25 11.2 11.5 11.2 10.55V10.1C11.2 9.6 11.6 9.2 12.1 9.2C12.6 9.2 13 9.6 13 10.1V10.55C13 12.5 11.45 14.05 9.5 14.05H6.5C4.55 14.05 3 12.5 3 10.55V10.1Z" fill="currentColor"/>
-  </svg>
-`;
+} from "../../shared/js/learning-adapter.js?v=20260724a";
+import {
+  escapeHtml,
+  formatCurriculum,
+  formatStrokeCount,
+  hasDisplayValue,
+  highlightExample,
+  highlightMeaningSound,
+  hrefWithTheme,
+  isLongText,
+  setTheme,
+  TAP_ICON,
+} from "../../shared/js/learning-ui-utils.js?v=20260724a";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -30,6 +35,7 @@ const LEARNING_STAGE_DATA = [
 ];
 const BOTTOM_SHEET_TRANSITION_MS = 320;
 const LETTER_WRONG_FEEDBACK_MS = 420;
+const HOME_REWARD_SESSION_KEY = "miri-textbook-home-reward";
 const LEARNING_EXIT_PAGE_IDS = new Set([
   "learning-vocab-card",
   "learning-vocab-matching",
@@ -39,19 +45,6 @@ const LEARNING_EXIT_PAGE_IDS = new Set([
   "learning-passage-ox",
   "learning-passage-mc",
 ]);
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function formatCurriculum(lesson) {
-  return `${lesson.grade}학년 ${lesson.semester}학기 ${lesson.round}회차 [${lesson.subject}]`;
-}
 
 function formatLessonRound(lesson) {
   return `${lesson.grade}학년 ${lesson.semester}학기 ${lesson.round}회차`;
@@ -71,62 +64,6 @@ function highlightWord(text, word) {
 
   const safeWord = escapeHtml(word);
   return escapeHtml(text).replaceAll(safeWord, `<span class="word-card__emphasis">${safeWord}</span>`);
-}
-
-function buildHighlightCandidates(word = "") {
-  const candidates = new Set();
-  if (!word) {
-    return [];
-  }
-
-  candidates.add(word);
-
-  if (word.endsWith("하다")) {
-    const stem = word.slice(0, -2);
-    [stem, `${stem}해`, `${stem}했`, `${stem}할`, `${stem}한`, `${stem}하면`, `${stem}하며`, `${stem}하게`, `${stem}해서`, `${stem}하여`, `${stem}하는`].forEach((item) =>
-      candidates.add(item),
-    );
-  }
-
-  if (word.endsWith("되다")) {
-    const stem = word.slice(0, -2);
-    [stem, `${stem}돼`, `${stem}된`, `${stem}될`, `${stem}되면`, `${stem}되어`, `${stem}되는`].forEach((item) => candidates.add(item));
-  }
-
-  if (word.endsWith("우다")) {
-    const stem = word.slice(0, -2);
-    [stem, `${stem}워`, `${stem}웠`, `${stem}우`, `${stem}운`, `${stem}울`, `${stem}우니`, `${stem}워서`].forEach((item) => candidates.add(item));
-  }
-
-  return [...candidates].filter(Boolean).sort((left, right) => right.length - left.length);
-}
-
-function highlightExample(text = "", word = "") {
-  const raw = String(text);
-  const candidates = buildHighlightCandidates(word);
-
-  for (const candidate of candidates) {
-    const index = raw.indexOf(candidate);
-    if (index === -1) {
-      continue;
-    }
-
-    const before = raw.slice(0, index);
-    const match = raw.slice(index, index + candidate.length);
-    const after = raw.slice(index + candidate.length);
-    return `${escapeHtml(before)}<span class="word-card__emphasis">${escapeHtml(match)}</span>${escapeHtml(after)}`;
-  }
-
-  return escapeHtml(raw);
-}
-
-function setTheme(theme) {
-  document.body.classList.toggle("theme-light", theme === "light");
-  document.body.classList.toggle("theme-dark", theme === "dark");
-  const toggle = document.querySelector("[data-theme-toggle]");
-  if (toggle) {
-    toggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
-  }
 }
 
 function openBottomSheet(sheet) {
@@ -254,15 +191,6 @@ function buildProgressStateMarkup(states = []) {
     .join("");
 }
 
-function hrefWithTheme(path) {
-  const isDark = document.body.classList.contains("theme-dark");
-  if (!isDark) {
-    return path;
-  }
-
-  return `${path}${path.includes("?") ? "&" : "?"}theme=dark`;
-}
-
 function pageHref(page) {
   return pageMode === "prototype" ? `/prototype/pages/${page}.html` : `/publish/${page}.html`;
 }
@@ -358,32 +286,6 @@ function setBottomSheetCopy(node, text = "") {
   node.hidden = !text;
 }
 
-function highlightMeaningSound(text = "") {
-  const parts = String(text).trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) {
-    return "";
-  }
-
-  if (parts.length === 1) {
-    return `<strong>${escapeHtml(parts[0])}</strong>`;
-  }
-
-  const last = escapeHtml(parts.pop());
-  return `${escapeHtml(parts.join(" "))} <strong>${last}</strong>`;
-}
-
-function formatStrokeCount(value) {
-  if (value === null || value === undefined || value === "") {
-    return "";
-  }
-
-  return String(value).endsWith("획") ? String(value) : `${value}획`;
-}
-
-function hasDisplayValue(value) {
-  return value !== null && value !== undefined && value !== "";
-}
-
 function buildHanjaModalRowsMarkup(source) {
   return getHanjaCharacterRows(source)
     .map((entry) => {
@@ -438,6 +340,33 @@ function formatScoreMarkup(correct, total) {
   return `<span class="complete-card__score-current">${correct}</span><span class="complete-card__score-total">/${total}</span>`;
 }
 
+function calculateRewardStarCount(correct, total) {
+  const ratio = total > 0 ? correct / total : 0;
+  if (ratio >= 0.85) {
+    return 3;
+  }
+
+  if (ratio >= 0.55) {
+    return 2;
+  }
+
+  return 1;
+}
+
+function storePendingHomeReward(starCount, source = "lesson-complete") {
+  try {
+    window.sessionStorage.setItem(
+      HOME_REWARD_SESSION_KEY,
+      JSON.stringify({
+        starCount,
+        source,
+      }),
+    );
+  } catch (error) {
+    void error;
+  }
+}
+
 function getExampleHighlightTarget(word = {}) {
   if (!word.word) {
     return "";
@@ -452,10 +381,6 @@ function getExampleHighlightTarget(word = {}) {
   }
 
   return word.word;
-}
-
-function isLongText(text) {
-  return String(text).length > 34;
 }
 
 function createRevealButton(kind, index, text, revealed, word, label) {
@@ -2508,6 +2433,7 @@ async function initComplete() {
   const lesson = await getLessonMeta();
   const totalCorrect = LEARNING_STAGE_DATA.reduce((sum, item) => sum + item.correct, 0);
   const totalQuestions = LEARNING_STAGE_DATA.reduce((sum, item) => sum + item.total, 0);
+  const rewardStarCount = calculateRewardStarCount(totalCorrect, totalQuestions);
   const backLink = document.querySelector("[data-complete-back-link]");
   const round = document.querySelector("[data-complete-round]");
   const score = document.querySelector("[data-complete-score]");
@@ -2531,6 +2457,9 @@ async function initComplete() {
 
   backLink?.addEventListener("click", (event) => {
     event.preventDefault();
+    if (pageMode === "prototype") {
+      storePendingHomeReward(rewardStarCount);
+    }
     window.location.assign(homeHref);
   });
 
@@ -2541,6 +2470,9 @@ async function initComplete() {
 
   homeLink?.addEventListener("click", (event) => {
     event.preventDefault();
+    if (pageMode === "prototype") {
+      storePendingHomeReward(rewardStarCount);
+    }
     window.location.assign(homeHref);
   });
 }

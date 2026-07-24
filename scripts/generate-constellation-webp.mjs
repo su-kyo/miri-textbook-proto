@@ -15,7 +15,9 @@ function pngSourcePath(assetPath, fallbackName) {
   }
 
   if (assetPath.endsWith(".webp")) {
-    return assetPath.replace(/\.webp$/u, ".png");
+    return assetPath
+      .replace(/^asset\/constellation\//u, "asset/constellation_origin/")
+      .replace(/\.webp$/u, ".png");
   }
 
   return assetPath;
@@ -23,7 +25,9 @@ function pngSourcePath(assetPath, fallbackName) {
 
 function webpOutputPath(assetPath, fallbackName) {
   const sourcePath = pngSourcePath(assetPath, fallbackName);
-  return sourcePath.replace(/\.png$/u, ".webp");
+  return sourcePath
+    .replace(/^asset\/constellation_origin\//u, "asset/constellation/")
+    .replace(/\.png$/u, ".webp");
 }
 
 function buildWebpFromPng(sourcePath, outputPath) {
@@ -58,11 +62,11 @@ let droppedHidden = 0;
 for (const item of catalog) {
   const illustrationPng = pngSourcePath(
     item.illustration,
-    `asset/constellations/${item.id}/${item.id}.png`,
+    `asset/constellation_origin/${item.id}/${item.id}.png`,
   );
   const illustrationWebp = webpOutputPath(
     item.illustration,
-    `asset/constellations/${item.id}/${item.id}.png`,
+    `asset/constellation_origin/${item.id}/${item.id}.png`,
   );
 
   if (!buildWebpFromPng(illustrationPng, illustrationWebp)) {
@@ -74,11 +78,11 @@ for (const item of catalog) {
 
   const hiddenPng = pngSourcePath(
     item.hidden,
-    `asset/constellations/${item.id}/${item.id}_hidden.png`,
+    `asset/constellation_origin/${item.id}/${item.id}_hidden.png`,
   );
   const hiddenWebp = webpOutputPath(
     item.hidden,
-    `asset/constellations/${item.id}/${item.id}_hidden.png`,
+    `asset/constellation_origin/${item.id}/${item.id}_hidden.png`,
   );
 
   if (buildWebpFromPng(hiddenPng, hiddenWebp)) {

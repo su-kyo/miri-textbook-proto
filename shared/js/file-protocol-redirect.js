@@ -2,7 +2,7 @@ const DEFAULT_PREVIEW_ORIGIN = "http://127.0.0.1:8000";
 
 function getProjectRelativePath(pathname) {
   const decodedPath = decodeURIComponent(pathname).replace(/\\/g, "/");
-  const marker = "/miri-textbook/";
+  const marker = "/MT/";
   const markerIndex = decodedPath.lastIndexOf(marker);
 
   if (markerIndex === -1) {
