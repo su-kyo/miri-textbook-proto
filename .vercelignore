@@ -5,3 +5,6 @@ __pycache__/
 demo/
 docs/
 scripts/
+
+# 원본 PNG 소스(227MB). webp 생성용이며 런타임에서 참조하지 않으므로 배포 제외.
+asset/constellation_origin/

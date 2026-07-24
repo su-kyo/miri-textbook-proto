@@ -9,7 +9,7 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js?v=20260724i";
+} from "../../shared/js/learning-adapter.js?v=20260725a";
 import {
   escapeHtml,
   formatCurriculum,
@@ -21,7 +21,7 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260724i";
+} from "../../shared/js/learning-ui-utils.js?v=20260725a";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -414,10 +414,9 @@ async function initVocabCard() {
     allowSwipe: false,
     dragOffset: 0,
     ignoreClickUntil: 0,
-    cardStates: deck.map((card) => ({
+    cardStates: deck.map(() => ({
       meaningRevealed: false,
       revealedExamples: new Set(),
-      hasHanjaRows: getHanjaCharacterRows(card).length > 0,
       face: "back",
       scrollTop: 0,
     })),

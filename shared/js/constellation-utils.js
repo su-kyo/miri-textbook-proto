@@ -1,4 +1,4 @@
-export function shuffleList(list, random = Math.random) {
+function shuffleList(list, random = Math.random) {
   const clone = [...list];
 
   for (let index = clone.length - 1; index > 0; index -= 1) {
@@ -36,12 +36,4 @@ export function buildProgressSegments(requiredLight, obtainedLight) {
 
 export function getConstellationAsset(item, completed) {
   return completed ? item.illustration : item.hidden ?? item.illustration;
-}
-
-export function buildDuplicateCount(percent, random = Math.random) {
-  if (clampPercent(percent) < 100) {
-    return 0;
-  }
-
-  return Math.floor(random() * 3) + 1;
 }

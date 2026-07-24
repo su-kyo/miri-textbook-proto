@@ -1,10 +1,9 @@
-import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260724i";
-import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260724i";
-import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260724i";
-import { createPrototypeStore } from "./prototype-state.js?v=20260724i";
-import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260724i";
-import { buildLearningLetterDebugMarkup, wireLearningLetterDebug } from "../debug/learning-letter-debug.js?v=20260724i";
-import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260724i";
+import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260725a";
+import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260725a";
+import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260725a";
+import { createPrototypeStore } from "./prototype-state.js?v=20260725a";
+import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260725a";
+import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260725a";
 
 if (!redirectFileProtocolToPreview()) {
   const pageId = document.body.dataset.page;
@@ -50,10 +49,6 @@ if (!redirectFileProtocolToPreview()) {
         return buildHomeDebugMarkup(state);
       }
 
-      if (currentPageId === "learning-vocab-letter") {
-        return buildLearningLetterDebugMarkup(state);
-      }
-
       return "";
     }
 
@@ -65,12 +60,6 @@ if (!redirectFileProtocolToPreview()) {
           button.setAttribute("aria-label", "디버그 패널 열기");
         });
       }
-
-      if (currentPageId === "learning-vocab-letter") {
-        root.querySelectorAll(".lesson-card__eyebrow").forEach((target) => {
-          target.setAttribute("data-letter-debug-open", "true");
-        });
-      }
     }
 
     async function draw() {
@@ -80,12 +69,10 @@ if (!redirectFileProtocolToPreview()) {
         mount,
         store,
         renderDebugPanels,
-        constellationDebugState: store.getState().constellationDebug,
       });
 
       attachPrototypeDebugHooks(mount, pageId);
       wireHomeDebug(mount, store);
-      wireLearningLetterDebug(mount, store);
       wireConstellationDebug(mount, store);
     }
 

@@ -1,6 +1,6 @@
-import { redirectFileProtocolToPreview } from "./file-protocol-redirect.js?v=20260724i";
-import { createViewStore } from "./view-state.js?v=20260724i";
-import { prepareInitialState, renderPage } from "./page-renderer.js?v=20260724i";
+import { redirectFileProtocolToPreview } from "./file-protocol-redirect.js?v=20260725a";
+import { createViewStore } from "./view-state.js?v=20260725a";
+import { prepareInitialState, renderPage } from "./page-renderer.js?v=20260725a";
 
 if (!redirectFileProtocolToPreview()) {
   const mount = document.querySelector("#app");

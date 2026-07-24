@@ -1,5 +1,4 @@
-import { LEARNING_PAGE_TO_ACTIVITY } from "./app-config.js?v=20260724i";
-import { loadLearningContentRaw } from "./data-loader.js?v=20260724i";
+import { loadLearningContentRaw } from "./data-loader.js?v=20260725a";
 
 let cachedBundle = null;
 
@@ -138,10 +137,6 @@ function buildVocabularyIndex(vocabulary) {
   return new Map(vocabulary.map((item) => [item.id, item]));
 }
 
-function buildPageIndex(flow) {
-  return new Map(flow.map((key, index) => [key, index]));
-}
-
 export async function loadLearningBundle() {
   if (cachedBundle) {
     return cachedBundle;
@@ -158,7 +153,6 @@ export async function loadLearningBundle() {
     activities,
     vocabulary,
     vocabularyIndex: buildVocabularyIndex(vocabulary),
-    flowIndex: buildPageIndex(Array.isArray(lesson.flow) ? lesson.flow : []),
   };
 
   return cachedBundle;
@@ -174,31 +168,9 @@ export async function getVocabularyList() {
   return bundle.vocabulary;
 }
 
-export async function getWordById(wordId) {
-  const bundle = await loadLearningBundle();
-  return bundle.vocabularyIndex.get(wordId) ?? null;
-}
-
 export async function getActivity(activityKey) {
   const bundle = await loadLearningBundle();
   return bundle.activities[activityKey] ?? null;
-}
-
-export async function getPageActivity(pageId) {
-  const activityKey = LEARNING_PAGE_TO_ACTIVITY[pageId];
-  return activityKey ? getActivity(activityKey) : null;
-}
-
-export async function getLearningProgress(pageId) {
-  const bundle = await loadLearningBundle();
-  const activityKey = LEARNING_PAGE_TO_ACTIVITY[pageId];
-  const flow = Array.isArray(bundle.lesson.flow) ? bundle.lesson.flow : [];
-  const currentIndex = bundle.flowIndex.get(activityKey) ?? 0;
-
-  return flow.map((key, index) => ({
-    key,
-    active: index <= currentIndex,
-  }));
 }
 
 export async function getVocabCardDeck() {

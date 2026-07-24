@@ -1,24 +1,16 @@
-import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260724i";
+import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260725a";
 import {
   buildConstellationCatalogCards,
   buildHomeConstellationCards,
   getConstellationById,
   getInitialHomeConstellations,
   loadConstellationCatalog,
-} from "./constellation-adapter.js?v=20260724i";
-import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260724i";
-import { resolveProjectUrl } from "./data-loader.js?v=20260724i";
-import { getLessonMeta } from "./learning-adapter.js?v=20260724i";
-import { vibrate } from "./haptics.js?v=20260724i";
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+} from "./constellation-adapter.js?v=20260725a";
+import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260725a";
+import { resolveProjectUrl } from "./data-loader.js?v=20260725a";
+import { getLessonMeta } from "./learning-adapter.js?v=20260725a";
+import { vibrate } from "./haptics.js?v=20260725a";
+import { escapeHtml } from "./learning-ui-utils.js?v=20260725a";
 
 function routePrefix(mode) {
   if (mode === "prototype") {
@@ -868,10 +860,6 @@ function buildStudyCard(mode, state) {
   `;
 }
 
-function resolveConstellationDebugState(constellationDebugState) {
-  return constellationDebugState ?? { preset: 0 };
-}
-
 function buildHomeBody(lesson, cards, mode, state) {
   const params = new URLSearchParams(window.location.search);
   if (params.get("reset") === "diagnostic") {
@@ -1248,9 +1236,7 @@ function buildDocsBody() {
   `;
 }
 
-async function buildPageBody(pageId, lesson, state, mode, options = {}) {
-  const constellationDebugState = resolveConstellationDebugState(options.constellationDebugState);
-
+async function buildPageBody(pageId, lesson, state, mode) {
   if (pageId === "login") {
     return buildLoginBody(mode);
   }
@@ -1259,8 +1245,6 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
     const cards = (await buildHomeConstellationCards(
       state.homeConstellationIds ?? [],
       state.homeConstellationState ?? {},
-      constellationDebugState,
-      Math.random,
     )).map((card) => ({
       ...card,
       isFlashing: (state.flashingConstellationIds ?? []).includes(card.id),
@@ -1281,8 +1265,6 @@ async function buildPageBody(pageId, lesson, state, mode, options = {}) {
     const cards = await buildConstellationCatalogCards(
       state.catalogConstellationState ?? {},
       state.recentConstellationIds ?? [],
-      constellationDebugState,
-      Math.random,
     );
     state.catalogCards = cards;
     return buildConstellationsBody(cards, state);
@@ -1771,7 +1753,7 @@ export function startHomePrototypeAcquisition(store, starCount = 1, options = {}
   return startRewardFlow(store, starCount, options);
 }
 
-export async function renderPage({ pageId, mode, mount, store, renderDebugPanels, constellationDebugState = null }) {
+export async function renderPage({ pageId, mode, mount, store, renderDebugPanels }) {
   const lesson = await getLessonMeta();
   const state = store.getState();
   const existingHomeContent = mount.querySelector(".page-content--home");
@@ -1782,7 +1764,7 @@ export async function renderPage({ pageId, mode, mount, store, renderDebugPanels
   state.avatarMarkup = await buildAvatarMarkup(state.avatar);
   state.avatarButtonMarkup = await buildAvatarMarkup(state.avatar, { small: true });
   state.avatarDraftMarkup = await buildAvatarMarkup(state.avatarDraft ?? state.avatar);
-  const body = await buildPageBody(pageId, lesson, state, mode, { constellationDebugState });
+  const body = await buildPageBody(pageId, lesson, state, mode);
   const activeConstellation = state.activeConstellationId
     ? state.homeCards?.find((item) => item.id === state.activeConstellationId) ??
       state.catalogCards?.find((item) => item.id === state.activeConstellationId) ??

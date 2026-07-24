@@ -1,23 +1,19 @@
 :root {
   /* Legacy global surfaces */
   --color-bg: #080a32;
-  --color-bg-soft: #111545;
   --color-surface: #faf8ff;
   --color-surface-strong: #ffffff;
   --color-surface-muted: rgba(255, 255, 255, 0.12);
   --color-surface-overlay: rgba(0, 0, 0, 0.78);
   --color-line: #e0d8f8;
-  --color-line-strong: rgba(255, 255, 255, 0.18);
   --color-text: #111111;
   --color-text-soft: #6e6a84;
   --color-text-inverse: #ffffff;
   --color-text-dim: rgba(255, 255, 255, 0.72);
   --color-accent: #c3ed39;
   --color-accent-strong: #a9ff52;
-  --color-accent-deep: #0f604a;
   --color-correct: #dff9b0;
   --color-wrong: #ffd8df;
-  --color-disabled: #b6b2c7;
 
   /* Primitive palette */
   --primitive-ink: #1a1530;
@@ -59,7 +55,6 @@
   /* Home-only palette */
   --home-bg: #080a32;
   --home-card: #2e2991;
-  --home-surface: #3d38a8;
   --home-surface-deep: #1c156c;
   --home-avatar-surface: #6150cb;
   --home-border-emphasis: #4a42bb;
@@ -69,7 +64,6 @@
   --home-accent-teal: #00fdf8;
   --home-accent-orange: #ff8000;
   --home-accent-yellow: #f9cf2d;
-  --home-char-bg: #022d36;
   --home-rank-silver: #c5cfe2;
   --home-rank-bronze: #dc9057;
   --home-reward-lime: #b2f654;
@@ -85,13 +79,9 @@
   --home-text-primary: rgba(255, 255, 255, 1);
   --home-text-secondary: rgba(255, 255, 255, 0.7);
   --home-text-tertiary: rgba(255, 255, 255, 0.55);
-  --home-text-dim: rgba(255, 255, 255, 0.3);
   --home-overlay-strong: rgba(0, 0, 0, 0.75);
-  --home-overlay-medium: rgba(0, 0, 0, 0.5);
   --home-overlay-light: rgba(0, 0, 0, 0.3);
   --color-static-text-on-color: var(--primitive-ink);
-  --color-card-blue: #204df5;
-  --color-card-gold: #f8c85e;
 
   /* Shared shape and spacing */
   --radius-xxs: 12px;
@@ -147,10 +137,8 @@
 .theme-light {
   --learning-brand-primary: var(--primitive-purple-400);
   --learning-brand-primary-soft: var(--primitive-purple-100);
-  --learning-brand-primary-pressed: var(--primitive-purple-500);
   --learning-brand-secondary: var(--primitive-purple-200);
   --learning-bg-default: var(--primitive-purple-050);
-  --learning-bg-overlay: var(--primitive-ink);
   --learning-surface-default: var(--primitive-neutral-000);
   --learning-surface-raised: var(--primitive-neutral-050);
   --learning-border-soft: var(--primitive-neutral-050);
@@ -159,13 +147,11 @@
   --learning-text-primary: var(--primitive-ink);
   --learning-text-secondary: var(--primitive-neutral-300);
   --learning-text-tertiary: var(--primitive-neutral-tertiary-light);
-  --learning-text-disabled: var(--primitive-neutral-tertiary-light);
   --learning-text-brand: var(--primitive-purple-400);
   --learning-text-on-brand: var(--primitive-neutral-000);
   --learning-status-success: var(--primitive-lime-500);
   --learning-status-success-container: var(--primitive-lime-bg-light);
   --learning-status-error: var(--primitive-red-500);
-  --learning-status-error-container: var(--primitive-red-bg-light);
   --learning-option-bg: var(--primitive-neutral-000);
   --learning-option-border: var(--primitive-neutral-100);
   --learning-option-text: var(--primitive-ink);
@@ -188,7 +174,6 @@
   --learning-shadow-card: 0 12px 28px rgba(107, 78, 255, 0.06);
   --learning-shadow-sheet: 0 -10px 28px rgba(26, 21, 48, 0.08);
   --learning-shadow-modal: 0 24px 48px rgba(44, 30, 112, 0.18);
-  --learning-shadow-line: 0 4px 10px rgba(142, 230, 58, 0.22);
   --learning-type-display-xl-size: 40px;
   --learning-type-display-xl-line: 1.2;
   --learning-type-display-size: 32px;
@@ -224,10 +209,8 @@
 .theme-dark {
   --learning-brand-primary: var(--primitive-purple-400);
   --learning-brand-primary-soft: var(--primitive-neutral-700);
-  --learning-brand-primary-pressed: var(--primitive-purple-500);
   --learning-brand-secondary: var(--primitive-purple-300);
   --learning-bg-default: var(--primitive-neutral-900);
-  --learning-bg-overlay: var(--primitive-black);
   --learning-surface-default: var(--primitive-neutral-800);
   --learning-surface-raised: var(--primitive-neutral-500);
   --learning-border-soft: var(--primitive-neutral-600);
@@ -236,13 +219,11 @@
   --learning-text-primary: var(--primitive-off-white);
   --learning-text-secondary: var(--primitive-neutral-200);
   --learning-text-tertiary: var(--primitive-neutral-tertiary-dark);
-  --learning-text-disabled: var(--primitive-neutral-tertiary-dark);
   --learning-text-brand: var(--primitive-purple-300);
   --learning-text-on-brand: var(--primitive-neutral-000);
   --learning-status-success: var(--primitive-lime-500);
   --learning-status-success-container: var(--primitive-lime-bg-dark);
   --learning-status-error: var(--primitive-red-500);
-  --learning-status-error-container: var(--primitive-red-bg-dark);
   --learning-option-bg: var(--primitive-neutral-800);
   --learning-option-border: var(--primitive-neutral-600);
   --learning-option-text: var(--primitive-off-white);
@@ -265,5 +246,4 @@
   --learning-shadow-card: 0 12px 28px rgba(0, 0, 0, 0.22);
   --learning-shadow-sheet: 0 -20px 56px rgba(0, 0, 0, 0.52);
   --learning-shadow-modal: 0 24px 56px rgba(0, 0, 0, 0.34);
-  --learning-shadow-line: 0 4px 10px rgba(142, 230, 58, 0.22);
 }

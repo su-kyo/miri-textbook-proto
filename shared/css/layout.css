@@ -65,12 +65,6 @@
   font-weight: 700;
 }
 
-.page-topbar__meta {
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-  font-weight: 800;
-}
-
 .page-content {
   position: relative;
   min-height: 0;
@@ -86,12 +80,6 @@
 .page-content--ranking,
 .page-content--my {
   padding-bottom: 0;
-}
-
-.page-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
 }
 
 .page-bottom-nav {

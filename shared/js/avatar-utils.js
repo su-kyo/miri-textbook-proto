@@ -1,5 +1,5 @@
-import { DEFAULT_AVATAR } from "./app-config.js?v=20260724i";
-import { loadText, resolveProjectUrl } from "./data-loader.js?v=20260724i";
+import { DEFAULT_AVATAR } from "./app-config.js?v=20260725a";
+import { loadText, resolveProjectUrl } from "./data-loader.js?v=20260725a";
 
 const HEAD_REPLACEMENTS = {
   "#C3ED39": "body",
@@ -14,7 +14,7 @@ const FOREHEAD_REPLACEMENTS = {
 
 const svgCache = new Map();
 
-export const AVATAR_THEME_COLORS = {
+const AVATAR_THEME_COLORS = {
   green: {
     body: "#C3ED39",
     neck: "#0F604A",
@@ -57,7 +57,7 @@ async function loadSvg(path) {
   return svgCache.get(path);
 }
 
-export function getAvatarAssetPath(part, index) {
+function getAvatarAssetPath(part, index) {
   return `asset/avatar/${part}/${part}__${pad(index)}.svg`;
 }
 

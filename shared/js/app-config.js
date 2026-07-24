@@ -33,16 +33,6 @@ export const PAGE_TITLES = {
   "docs-design-system": "Design System",
 };
 
-export const LEARNING_PAGE_TO_ACTIVITY = {
-  "learning-vocab-card": "vocabCard",
-  "learning-vocab-matching": "vocabMatching",
-  "learning-vocab-letter": "vocabLetter",
-  "learning-vocab-mc": "vocabMeaningMc",
-  "learning-passage-cloze": "passageCloze",
-  "learning-passage-ox": "passageOx",
-  "learning-passage-mc": "passageMc",
-};
-
 export const NAV_ITEMS = [
   { id: "home", label: "홈", icon: "asset/icons/common/nav-home.svg" },
   { id: "records", label: "기록", icon: "asset/icons/common/nav-records.svg" },
