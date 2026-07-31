@@ -309,9 +309,48 @@
     "vocabLetter": {
       "id": "activity-vocab-letter-001",
       "title": "글자 맞추기",
-      "instruction": "초성을 보고 알맞은 글자를 옮겨 단어를 완성해보세요.",
-      "debugToggleTarget": "titleArea",
-      "lowerGrade": {
+      "grade12": {
+        "questions": [
+          {
+            "id": "letter-12-01",
+            "wordId": "word-green",
+            "promptType": "assemble",
+            "prompt": "파랑과 노랑의 중간인, 짙은 풀과 같은 색.",
+            "answer": "초록색",
+            "tiles": [
+              "록",
+              "색",
+              "초"
+            ]
+          },
+          {
+            "id": "letter-12-02",
+            "wordId": "word-wither",
+            "promptType": "assemble",
+            "prompt": "꽃이나 풀 같은 식물이 물기가 말라 원래의 색이나 모양을 잃다.",
+            "answer": "시들다",
+            "tiles": [
+              "다",
+              "시",
+              "들"
+            ]
+          },
+          {
+            "id": "letter-12-03",
+            "wordId": "word-lack",
+            "promptType": "assemble",
+            "prompt": "필요한 양이나 기준에 모자라거나 넉넉하지 않다.",
+            "answer": "부족하다",
+            "tiles": [
+              "족",
+              "부",
+              "다",
+              "하"
+            ]
+          }
+        ]
+      },
+      "grade34": {
         "questions": [
           {
             "id": "letter-lower-01",
@@ -378,7 +417,7 @@
           }
         ]
       },
-      "upperGrade": {
+      "grade56": {
         "sourceStatus": "not-visible-in-video",
         "note": "영상에는 저학년형 초성/뜻 기반 글자 맞추기만 확인됩니다. 고학년형 예문 빈칸 데이터는 별도 콘텐츠가 필요합니다.",
         "questions": []

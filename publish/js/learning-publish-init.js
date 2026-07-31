@@ -9,7 +9,7 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js?v=20260725a";
+} from "../../shared/js/learning-adapter.js?v=20260731a";
 import {
   escapeHtml,
   formatCurriculum,
@@ -21,7 +21,8 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260725a";
+} from "../../shared/js/learning-ui-utils.js?v=20260731a";
+import { initLetterTutorial } from "./letter-tutorial.js?v=20260731a";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -35,6 +36,17 @@ const LEARNING_STAGE_DATA = [
 ];
 const BOTTOM_SHEET_TRANSITION_MS = 320;
 const LETTER_WRONG_FEEDBACK_MS = 420;
+const LETTER_GRADE_STORAGE_KEY = "miri-textbook-letter-grade";
+const LETTER_GRADE_SUFFIXES = ["12", "34", "56"];
+const LETTER_VARIANT_BY_SUFFIX = { 12: "grade12", 34: "grade34", 56: "grade56" };
+const LETTER_GRADE_LABELS = { 12: "1-2학년", 34: "3-4학년", 56: "5-6학년" };
+const LETTER_DESCRIPTIONS = {
+  grade12: "글자를 옮겨 단어를 완성해보세요.",
+  grade34: "초성을 보고 알맞은 글자를 옮겨 단어를 완성해보세요.",
+  grade56: "예문을 보고 어떤 단어인지 추리해보세요.",
+};
+const LETTER_DRAG_THRESHOLD_PX = 6;
+const LETTER_DRAG_CLICK_GUARD_MS = 250;
 const HOME_REWARD_SESSION_KEY = "miri-textbook-home-reward";
 const LEARNING_EXIT_PAGE_IDS = new Set([
   "learning-vocab-card",
@@ -1330,22 +1342,95 @@ async function initVocabMatching() {
   render();
 }
 
+function readStoredLetterSuffix() {
+  try {
+    const stored = localStorage.getItem(LETTER_GRADE_STORAGE_KEY);
+    return LETTER_GRADE_SUFFIXES.includes(stored) ? stored : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+// 우선순위: ?variant= (일회성) > localStorage(디버그 전환) > lesson.grade 기본 매핑
+function resolveLetterSuffix(query, lesson) {
+  const fromQuery = query.get("variant");
+  if (LETTER_GRADE_SUFFIXES.includes(fromQuery)) {
+    return fromQuery;
+  }
+
+  const stored = readStoredLetterSuffix();
+  if (stored) {
+    return stored;
+  }
+
+  const grade = Number(lesson?.grade);
+  if (!Number.isFinite(grade)) {
+    return "34";
+  }
+
+  if (grade <= 2) {
+    return "12";
+  }
+
+  return grade <= 4 ? "34" : "56";
+}
+
+function initLetterGradeSwitch(suffix) {
+  const root = document.querySelector("[data-letter-grade-switch]");
+  const button = root?.querySelector("[data-letter-grade-button]");
+  const popover = root?.querySelector("[data-letter-grade-popover]");
+  if (!root || !button || !popover) {
+    return;
+  }
+
+  button.textContent = LETTER_GRADE_LABELS[suffix] ?? LETTER_GRADE_LABELS["34"];
+  root.querySelectorAll("[data-letter-grade]").forEach((option) => {
+    option.classList.toggle("is-active", option.dataset.letterGrade === suffix);
+  });
+
+  function setOpen(open) {
+    popover.hidden = !open;
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-letter-grade-button]")) {
+      setOpen(popover.hidden);
+      return;
+    }
+
+    const option = event.target.closest("[data-letter-grade]");
+    if (option && root.contains(option)) {
+      try {
+        localStorage.setItem(LETTER_GRADE_STORAGE_KEY, option.dataset.letterGrade);
+      } catch (error) {
+        void error;
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("variant");
+      window.location.replace(url.href);
+      return;
+    }
+
+    if (!event.target.closest("[data-letter-grade-switch]")) {
+      setOpen(false);
+    }
+  });
+}
+
 async function initVocabLetter() {
   const query = new URLSearchParams(window.location.search);
   const lesson = await getLessonMeta();
-  const variant =
-    query.get("variant") === "lower"
-      ? "lowerGrade"
-      : query.get("variant") === "upper"
-        ? "upperGrade"
-        : lesson.grade >= 3
-          ? "upperGrade"
-          : "lowerGrade";
+  const suffix = resolveLetterSuffix(query, lesson);
+  const variant = LETTER_VARIANT_BY_SUFFIX[suffix];
+  initLetterGradeSwitch(suffix);
+
   const questions = await getVocabLetterSet(variant);
   if (!questions.length) {
     return;
   }
-  const isUpperGrade = variant === "upperGrade";
+  const isGrade56 = variant === "grade56";
 
   const title = document.querySelector("[data-letter-title]");
   const description = document.querySelector("[data-letter-description]");
@@ -1362,12 +1447,27 @@ async function initVocabLetter() {
     currentIndex: 0,
     mode: "problem",
     pickedTileIndexes: [],
+    assembleOrder: [],
+    selectedPosition: null,
+    ignoreClickUntil: 0,
   };
   let wrongResetTimer = null;
 
   function normalizeQuestion(question) {
     const answerText = question.answerText ?? question.answer ?? "";
     const answerUnits = Array.from(answerText);
+
+    if (question.promptType === "assemble") {
+      return {
+        id: question.id,
+        layout: "assemble",
+        answerUnits,
+        hints: [],
+        meaning: question.prompt ?? question.meaning ?? "",
+        tiles: question.tiles ?? [],
+      };
+    }
+
     const layout = question.promptType === "sentence" || typeof question.sentenceBefore === "string" ? "sentence" : "meaning";
 
     if (layout === "sentence") {
@@ -1375,7 +1475,7 @@ async function initVocabLetter() {
         id: question.id,
         layout,
         answerUnits,
-        hints: question.initials ?? [],
+        hints: [],
         sentenceBefore: question.sentenceBefore ?? "",
         sentenceAfter: question.sentenceAfter ?? "",
         meaning: question.meaning ?? "",
@@ -1431,6 +1531,15 @@ async function initVocabLetter() {
   }
 
   function buildCardMarkup(question) {
+    if (question.layout === "assemble") {
+      return `
+        <div class="letter-assemble">
+          <p class="letter-assemble__instruction">글자를 옮겨 단어를 완성해보세요.</p>
+          <div class="letter-assemble__meaning">${escapeHtml(question.meaning)}</div>
+        </div>
+      `;
+    }
+
     if (question.layout === "sentence") {
       return `
         <div class="letter-question-card__sentence">
@@ -1450,6 +1559,26 @@ async function initVocabLetter() {
   }
 
   function renderTiles(question) {
+    tiles.classList.toggle("letter-tiles--assemble", question.layout === "assemble");
+
+    // 조립형(1~2학년)은 정답 후에도 완성된 순서를 그대로 보여준다.
+    if (question.layout === "assemble") {
+      const solved = state.mode === "correct";
+      tiles.hidden = false;
+      tiles.innerHTML = state.assembleOrder
+        .map((tileIndex, position) => {
+          const selectedClass = state.selectedPosition === position ? " is-selected" : "";
+          const solvedClass = solved ? " is-solved" : "";
+          return `
+            <button class="letter-tile${selectedClass}${solvedClass}" type="button" data-letter-assemble="${position}" ${solved ? "disabled" : ""}>
+              ${escapeHtml(question.tiles[tileIndex] ?? "")}
+            </button>
+          `;
+        })
+        .join("");
+      return;
+    }
+
     if (state.mode === "correct") {
       tiles.innerHTML = "";
       tiles.hidden = true;
@@ -1473,14 +1602,15 @@ async function initVocabLetter() {
   function render() {
     const question = currentQuestion();
     title.textContent = "글자 맞추기";
-    description.textContent = "예문을 보고 어떤 단어인지 추리해보세요.";
+    description.textContent = LETTER_DESCRIPTIONS[variant];
     progress.innerHTML = buildProgressStateMarkup(buildProgressStates());
 
     card.classList.toggle("letter-question-card--lower", question.layout === "meaning");
+    card.classList.toggle("letter-question-card--assemble", question.layout === "assemble");
     card.innerHTML = buildCardMarkup(question);
 
     solvedMeaning.textContent = question.meaning ?? "";
-    meaningReveal.hidden = !(state.mode === "correct" && isUpperGrade);
+    meaningReveal.hidden = !(state.mode === "correct" && isGrade56);
 
     sheetCta.textContent = state.currentIndex === questions.length - 1 ? "다음 학습으로" : "다음 문제";
     sheetCopy.hidden = true;
@@ -1528,7 +1658,198 @@ async function initVocabLetter() {
     }, LETTER_WRONG_FEEDBACK_MS);
   }
 
+  function resetAssembleState() {
+    const question = currentQuestion();
+    state.assembleOrder = question.layout === "assemble" ? question.tiles.map((_, index) => index) : [];
+    state.selectedPosition = null;
+  }
+
+  // 조립형은 오답 상태가 없다. 순서가 맞아떨어질 때만 정답 처리한다.
+  function isAssembleSolved() {
+    const question = currentQuestion();
+    return state.assembleOrder.map((index) => question.tiles[index]).join("") === question.answerUnits.join("");
+  }
+
+  // 판정을 렌더보다 먼저 해서 한 번만 그린다(닫기 예약 후 곧바로 여는 상태 전이를 피한다).
+  function commitAssembleOrder(nextOrder) {
+    state.assembleOrder = nextOrder;
+    state.selectedPosition = null;
+    if (isAssembleSolved()) {
+      state.mode = "correct";
+    }
+    render();
+  }
+
+  function moveAssembleTile(fromPosition, toPosition) {
+    const next = [...state.assembleOrder];
+    const [moved] = next.splice(fromPosition, 1);
+    next.splice(toPosition, 0, moved);
+    commitAssembleOrder(next);
+  }
+
+  // 드래그 중에는 재렌더 없이 transform만 조작하고, 놓을 때 한 번만 커밋한다.
+  function applyDragShift(drag) {
+    drag.nodes.forEach((node, position) => {
+      if (position === drag.fromPosition) {
+        return;
+      }
+
+      let shift = 0;
+      if (drag.targetPosition > drag.fromPosition && position > drag.fromPosition && position <= drag.targetPosition) {
+        shift = -drag.slotWidth;
+      } else if (drag.targetPosition < drag.fromPosition && position >= drag.targetPosition && position < drag.fromPosition) {
+        shift = drag.slotWidth;
+      }
+
+      node.style.transform = shift ? `translateX(${shift}px)` : "";
+    });
+  }
+
+  function initAssembleDrag() {
+    let drag = null;
+
+    function clearDragStyles() {
+      if (!drag) {
+        return;
+      }
+
+      drag.tileEl.classList.remove("is-dragging");
+      drag.nodes.forEach((node) => {
+        node.style.transform = "";
+      });
+    }
+
+    function endDrag(commit) {
+      if (!drag) {
+        return;
+      }
+
+      const finished = drag;
+      clearDragStyles();
+      drag = null;
+
+      try {
+        finished.tileEl.releasePointerCapture(finished.pointerId);
+      } catch (error) {
+        void error;
+      }
+
+      if (!finished.moved) {
+        return;
+      }
+
+      // 실제로 끌었으면 뒤따르는 click(탭 교환)을 삼킨다.
+      state.ignoreClickUntil = performance.now() + LETTER_DRAG_CLICK_GUARD_MS;
+
+      if (commit && finished.targetPosition !== finished.fromPosition) {
+        moveAssembleTile(finished.fromPosition, finished.targetPosition);
+      }
+    }
+
+    tiles.addEventListener("pointerdown", (event) => {
+      if (state.mode !== "problem" || currentQuestion().layout !== "assemble" || drag) {
+        return;
+      }
+
+      const tileEl = event.target.closest("[data-letter-assemble]");
+      if (!tileEl || !tiles.contains(tileEl)) {
+        return;
+      }
+
+      const nodes = [...tiles.querySelectorAll("[data-letter-assemble]")];
+      const fromPosition = nodes.indexOf(tileEl);
+      if (fromPosition === -1 || nodes.length < 2) {
+        return;
+      }
+
+      const first = nodes[0].getBoundingClientRect();
+      const second = nodes[1].getBoundingClientRect();
+      drag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        fromPosition,
+        targetPosition: fromPosition,
+        nodes,
+        slotWidth: Math.max(1, second.left - first.left),
+        tileEl,
+        moved: false,
+      };
+
+      try {
+        tileEl.setPointerCapture(event.pointerId);
+      } catch (error) {
+        void error;
+      }
+    });
+
+    tiles.addEventListener("pointermove", (event) => {
+      if (!drag || event.pointerId !== drag.pointerId) {
+        return;
+      }
+
+      const dx = event.clientX - drag.startX;
+      if (!drag.moved) {
+        if (Math.abs(dx) < LETTER_DRAG_THRESHOLD_PX) {
+          return;
+        }
+
+        drag.moved = true;
+        drag.tileEl.classList.add("is-dragging");
+      }
+
+      drag.tileEl.style.transform = `translateX(${dx}px)`;
+
+      const rawTarget = drag.fromPosition + Math.round(dx / drag.slotWidth);
+      const nextTarget = Math.max(0, Math.min(drag.nodes.length - 1, rawTarget));
+      if (nextTarget !== drag.targetPosition) {
+        drag.targetPosition = nextTarget;
+        applyDragShift(drag);
+      }
+    });
+
+    tiles.addEventListener("pointerup", (event) => {
+      if (drag && event.pointerId === drag.pointerId) {
+        endDrag(true);
+      }
+    });
+
+    tiles.addEventListener("pointercancel", (event) => {
+      if (drag && event.pointerId === drag.pointerId) {
+        endDrag(false);
+      }
+    });
+  }
+
   document.addEventListener("click", (event) => {
+    const assembleButton = event.target.closest("[data-letter-assemble]");
+    if (assembleButton && tiles.contains(assembleButton)) {
+      if (state.mode !== "problem" || performance.now() < state.ignoreClickUntil) {
+        return;
+      }
+
+      const position = Number(assembleButton.dataset.letterAssemble);
+      if (Number.isNaN(position)) {
+        return;
+      }
+
+      if (state.selectedPosition === null) {
+        state.selectedPosition = position;
+        render();
+        return;
+      }
+
+      if (state.selectedPosition === position) {
+        state.selectedPosition = null;
+        render();
+        return;
+      }
+
+      const next = [...state.assembleOrder];
+      [next[state.selectedPosition], next[position]] = [next[position], next[state.selectedPosition]];
+      commitAssembleOrder(next);
+      return;
+    }
+
     const tileButton = event.target.closest("[data-letter-tile]");
     if (tileButton && tiles.contains(tileButton) && state.mode === "problem") {
       if (state.pickedTileIndexes.length >= currentQuestion().answerUnits.length) {
@@ -1559,6 +1880,7 @@ async function initVocabLetter() {
       state.currentIndex += 1;
       state.mode = "problem";
       state.pickedTileIndexes = [];
+      resetAssembleState();
       render();
       return;
     }
@@ -1566,7 +1888,10 @@ async function initVocabLetter() {
     window.location.href = hrefWithTheme(pageHref("learning-vocab-mc"));
   });
 
+  resetAssembleState();
+  initAssembleDrag();
   render();
+  initLetterTutorial({ variant, query });
 }
 
 async function initVocabMc() {

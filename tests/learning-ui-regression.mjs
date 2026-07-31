@@ -13,7 +13,8 @@ assert.match(css, /\.passage-blank\s*\{[\s\S]*border:\s*2px solid var\(--learnin
 assert.match(css, /\.passage-blank\.is-active\s*\{[\s\S]*border-color:\s*var\(--learning-status-success\);/, "active passage blank should use the stronger success border");
 assert.match(css, /\.letter-question-card\s*\{[\s\S]*background:\s*var\(--learning-brand-primary-soft\);/, "upper-grade letter card should match the Figma purple panel");
 assert.match(css, /\.letter-answer-stage\s*\{[\s\S]*min-height:\s*168px;/, "letter answer stage should match the Figma height");
-assert.match(publishJs, /description\.textContent = "예문을 보고 어떤 단어인지 추리해보세요\.";/, "letter chapter copy should match the Figma text");
+assert.match(publishJs, /grade56: "예문을 보고 어떤 단어인지 추리해보세요\.",/, "letter chapter copy should match the Figma text for the 5-6 grade band");
+assert.match(publishJs, /description\.textContent = LETTER_DESCRIPTIONS\[variant\];/, "letter chapter copy should follow the resolved grade band");
 assert.match(publishJs, /progress\.innerHTML = buildProgressStateMarkup\(/, "OX chapter should use state-based progress rendering");
 assert.match(publishJs, /index === state\.currentIndex\) \{\s*return state\.solved \? "complete" : "active";/m, "OX current step should become complete as soon as the answer is correct");
 assert.doesNotMatch(oxHtml, /learning-shell--footerless/, "OX screen should restore the footer slot for the explanation toggle");

@@ -1,5 +1,5 @@
-import { escapeHtml, hrefWithTheme, setTheme } from "../../shared/js/learning-ui-utils.js?v=20260725a";
-import { loadDiagnosticContentRaw } from "../../shared/js/data-loader.js?v=20260725a";
+import { escapeHtml, hrefWithTheme, setTheme } from "../../shared/js/learning-ui-utils.js?v=20260731a";
+import { loadDiagnosticContentRaw } from "../../shared/js/data-loader.js?v=20260731a";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);

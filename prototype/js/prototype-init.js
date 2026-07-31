@@ -1,9 +1,9 @@
-import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260725a";
-import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260725a";
-import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260725a";
-import { createPrototypeStore } from "./prototype-state.js?v=20260725a";
-import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260725a";
-import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260725a";
+import { DEFAULT_AVATAR } from "../../shared/js/app-config.js?v=20260731a";
+import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260731a";
+import { consumeHomeRewardPayload, renderPage, startHomePrototypeAcquisition } from "../../shared/js/page-renderer.js?v=20260731a";
+import { createPrototypeStore } from "./prototype-state.js?v=20260731a";
+import { buildHomeDebugMarkup, wireHomeDebug } from "../debug/home-debug.js?v=20260731a";
+import { wireConstellationDebug } from "../debug/constellation-debug.js?v=20260731a";
 
 if (!redirectFileProtocolToPreview()) {
   const pageId = document.body.dataset.page;

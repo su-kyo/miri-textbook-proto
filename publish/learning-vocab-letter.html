@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <base href="../" />
     <title>글자 맞추기</title>
-    <link rel="stylesheet" href="shared/css/base.css?v=20260725a" />
-    <link rel="stylesheet" href="shared/css/learning-shell.css?v=20260725a" />
-    <link rel="stylesheet" href="shared/css/learning-components.css?v=20260725a" />
+    <link rel="stylesheet" href="shared/css/base.css?v=20260731a" />
+    <link rel="stylesheet" href="shared/css/learning-shell.css?v=20260731a" />
+    <link rel="stylesheet" href="shared/css/learning-components.css?v=20260731a" />
     <script>
       (function () {
         if (window.location.protocol !== "file:") return;
@@ -30,6 +30,15 @@
                 <img src="asset/icons/common/back.svg" alt="" />
               </a>
               <div class="learning-curriculum" data-curriculum-label></div>
+            </div>
+            <div class="letter-grade-switch" data-letter-grade-switch>
+              <button class="letter-grade-switch__button" type="button" aria-haspopup="true" aria-expanded="false" aria-label="학년 전환 (디버그)" data-letter-grade-button>3-4학년</button>
+              <div class="letter-grade-switch__popover" hidden data-letter-grade-popover>
+                <span class="letter-grade-switch__tag">DEBUG</span>
+                <button class="letter-grade-switch__option" type="button" data-letter-grade="12">1-2학년</button>
+                <button class="letter-grade-switch__option" type="button" data-letter-grade="34">3-4학년</button>
+                <button class="letter-grade-switch__option" type="button" data-letter-grade="56">5-6학년</button>
+              </div>
             </div>
             <button class="learning-theme-toggle" type="button" aria-label="라이트 모드와 다크 모드 전환" aria-pressed="false" data-theme-toggle>
               <span class="learning-theme-toggle__icon" aria-hidden="true"><img src="asset/icons/constellation/light.svg" alt="" /></span>
@@ -77,6 +86,6 @@
         </div>
       </main>
     </div>
-    <script type="module" src="publish/js/learning-publish-init.js?v=20260725a"></script>
+    <script type="module" src="publish/js/learning-publish-init.js?v=20260731a"></script>
   </body>
 </html>

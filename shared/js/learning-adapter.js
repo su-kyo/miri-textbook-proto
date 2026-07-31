@@ -1,20 +1,9 @@
-import { loadLearningContentRaw } from "./data-loader.js?v=20260725a";
+import { loadLearningContentRaw } from "./data-loader.js?v=20260731a";
 
 let cachedBundle = null;
 
 function splitWordUnits(word = "") {
   return Array.from(String(word)).filter((char) => char && !/\s/.test(char));
-}
-
-function toInitialSound(char = "") {
-  const code = char.codePointAt(0);
-  if (!code || code < 0xac00 || code > 0xd7a3) {
-    return char;
-  }
-
-  const initials = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
-  const offset = code - 0xac00;
-  return initials[Math.floor(offset / 588)] ?? char;
 }
 
 function buildWordFormCandidates(word = "") {
@@ -94,7 +83,7 @@ function shuffleWithSeed(items, seed) {
   return copy;
 }
 
-function buildUpperGradeLetterQuestions(bundle) {
+function buildGrade56LetterQuestions(bundle) {
   const cardOrder = Array.isArray(bundle.activities?.vocabCard?.cardOrder) ? bundle.activities.vocabCard.cardOrder : [];
   const orderedWords = cardOrder.map((wordId) => bundle.vocabularyIndex.get(wordId)).filter(Boolean);
   const candidates = orderedWords
@@ -124,7 +113,6 @@ function buildUpperGradeLetterQuestions(bundle) {
       promptType: "sentence",
       answer: word.word,
       answerText,
-      initials: answerUnits.map((unit) => toInitialSound(unit)),
       sentenceBefore,
       sentenceAfter,
       meaning: word.meaning ?? "",
@@ -187,13 +175,13 @@ export async function getVocabMatchingPairs() {
   return activity?.pairs ?? [];
 }
 
-export async function getVocabLetterSet(variant = "lowerGrade") {
+export async function getVocabLetterSet(variant = "grade34") {
   const bundle = await loadLearningBundle();
   const activity = bundle.activities.vocabLetter ?? {};
   const questions = activity?.[variant]?.questions ?? [];
 
-  if (variant === "upperGrade" && questions.length === 0) {
-    return buildUpperGradeLetterQuestions(bundle);
+  if (variant === "grade56" && questions.length === 0) {
+    return buildGrade56LetterQuestions(bundle);
   }
 
   return questions;

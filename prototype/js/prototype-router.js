@@ -1,4 +1,4 @@
-import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260725a";
+import { redirectFileProtocolToPreview } from "../../shared/js/file-protocol-redirect.js?v=20260731a";
 
 if (redirectFileProtocolToPreview()) {
   // file:// directly opened by drag & drop should jump to localhost preview
