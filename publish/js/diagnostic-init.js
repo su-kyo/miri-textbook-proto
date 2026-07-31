@@ -1,5 +1,5 @@
-import { escapeHtml, hrefWithTheme, setTheme } from "../../shared/js/learning-ui-utils.js?v=20260731a";
-import { loadDiagnosticContentRaw } from "../../shared/js/data-loader.js?v=20260731a";
+import { escapeHtml, hrefWithTheme, setTheme } from "../../shared/js/learning-ui-utils.js?v=20260731b";
+import { loadDiagnosticContentRaw } from "../../shared/js/data-loader.js?v=20260731b";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -195,14 +195,23 @@ async function initQuiz() {
     cta.setAttribute("aria-disabled", enabled ? "false" : "true");
   }
 
+  // 닫는 도중 다시 열릴 수 있으므로 예약된 hidden 처리를 취소하고 연다.
+  let sheetCloseTimer = null;
+
   function openSheet() {
+    window.clearTimeout(sheetCloseTimer);
+    sheetCloseTimer = null;
     sheet.hidden = false;
-    requestAnimationFrame(() => sheet.classList.add("is-open"));
+    // 강제 리플로우로 열기 전 상태를 커밋해야 슬라이드 전환이 재생된다.
+    void sheet.offsetHeight;
+    sheet.classList.add("is-open");
   }
 
   function closeSheet() {
+    window.clearTimeout(sheetCloseTimer);
     sheet.classList.remove("is-open");
-    window.setTimeout(() => {
+    sheetCloseTimer = window.setTimeout(() => {
+      sheetCloseTimer = null;
       if (!sheet.classList.contains("is-open")) {
         sheet.hidden = true;
       }

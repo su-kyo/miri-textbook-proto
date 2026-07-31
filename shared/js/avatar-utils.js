@@ -1,5 +1,5 @@
-import { DEFAULT_AVATAR } from "./app-config.js?v=20260731a";
-import { loadText, resolveProjectUrl } from "./data-loader.js?v=20260731a";
+import { DEFAULT_AVATAR } from "./app-config.js?v=20260731b";
+import { loadText, resolveProjectUrl } from "./data-loader.js?v=20260731b";
 
 const HEAD_REPLACEMENTS = {
   "#C3ED39": "body",

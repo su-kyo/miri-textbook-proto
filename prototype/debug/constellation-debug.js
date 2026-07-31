@@ -1,4 +1,4 @@
-import { getConstellationById, getInitialHomeConstellations } from "../../shared/js/constellation-adapter.js?v=20260731a";
+import { getConstellationById, getInitialHomeConstellations } from "../../shared/js/constellation-adapter.js?v=20260731b";
 
 async function buildPresetState(ids, preset) {
   const entries = await Promise.all(

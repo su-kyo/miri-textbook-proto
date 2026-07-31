@@ -9,7 +9,7 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js?v=20260731a";
+} from "../../shared/js/learning-adapter.js?v=20260731b";
 import {
   escapeHtml,
   formatCurriculum,
@@ -21,8 +21,8 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260731a";
-import { initLetterTutorial } from "./letter-tutorial.js?v=20260731a";
+} from "../../shared/js/learning-ui-utils.js?v=20260731b";
+import { initLetterTutorial } from "./letter-tutorial.js?v=20260731b";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -78,15 +78,27 @@ function highlightWord(text, word) {
   return escapeHtml(text).replaceAll(safeWord, `<span class="word-card__emphasis">${safeWord}</span>`);
 }
 
+// 시트별 닫기 타이머. 닫는 도중 다시 열리면 예약된 hidden 처리를 취소해야 한다.
+const bottomSheetCloseTimers = new WeakMap();
+
+function cancelBottomSheetClose(sheet) {
+  const pending = bottomSheetCloseTimers.get(sheet);
+  if (pending) {
+    window.clearTimeout(pending);
+    bottomSheetCloseTimers.delete(sheet);
+  }
+}
+
 function openBottomSheet(sheet) {
   if (!sheet) {
     return;
   }
 
+  cancelBottomSheetClose(sheet);
   sheet.hidden = false;
-  requestAnimationFrame(() => {
-    sheet.classList.add("is-open");
-  });
+  // 강제 리플로우로 열기 전 상태를 커밋해야 슬라이드 전환이 재생된다.
+  void sheet.offsetHeight;
+  sheet.classList.add("is-open");
 }
 
 function closeBottomSheet(sheet) {
@@ -94,12 +106,17 @@ function closeBottomSheet(sheet) {
     return;
   }
 
+  cancelBottomSheetClose(sheet);
   sheet.classList.remove("is-open");
-  window.setTimeout(() => {
-    if (!sheet.classList.contains("is-open")) {
-      sheet.hidden = true;
-    }
-  }, BOTTOM_SHEET_TRANSITION_MS);
+  bottomSheetCloseTimers.set(
+    sheet,
+    window.setTimeout(() => {
+      bottomSheetCloseTimers.delete(sheet);
+      if (!sheet.classList.contains("is-open")) {
+        sheet.hidden = true;
+      }
+    }, BOTTOM_SHEET_TRANSITION_MS),
+  );
 }
 
 function setFooterGhostVisibility(button, visible) {
