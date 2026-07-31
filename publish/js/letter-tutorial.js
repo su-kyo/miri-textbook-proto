@@ -11,7 +11,7 @@ const CAPTIONS = {
   swap: "글자 타일을 끌어서 순서를 바꿔 단어를 완성해요.",
   fill: "알맞은 타일을 빈칸에 끌어다 놓아요.",
 };
-const VIDEO_VERSION = "20260731c";
+const VIDEO_VERSION = "20260731e";
 
 function readHiddenFlag(key) {
   try {

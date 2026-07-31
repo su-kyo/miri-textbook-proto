@@ -19,6 +19,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-subheading-size);
   line-height: var(--learning-type-subheading-line);
   letter-spacing: -0.03em;
@@ -46,6 +47,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-subheading-size);
   line-height: 1.5;
   letter-spacing: -0.04em;
@@ -62,7 +64,7 @@
 
 .question-prompt-card__title--ox {
   font-family: var(--font-body-eb);
-  font-weight: 400;
+  font-weight: 800;
 }
 
 .option-card,
@@ -153,6 +155,7 @@
   margin-bottom: 8px;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-subheading-size);
   line-height: var(--learning-type-subheading-line);
 }
@@ -181,6 +184,7 @@
   background: var(--learning-brand-primary);
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-cta-size);
   line-height: var(--learning-type-cta-line);
 }
@@ -260,6 +264,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-display-xl-size);
   line-height: var(--learning-type-display-xl-line);
   -webkit-user-select: none;
@@ -318,6 +323,7 @@
   margin: 0;
   color: var(--learning-text-secondary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -662,6 +668,7 @@
   gap: 4px;
   justify-content: flex-start;
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -975,6 +982,7 @@
   width: 100%;
   color: var(--learning-text-primary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 24px;
   line-height: 1.4;
   letter-spacing: -0.03em;
@@ -1017,6 +1025,7 @@
   background: var(--learning-surface-default);
   color: var(--learning-text-primary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 24px;
   line-height: 1.4;
 }
@@ -1035,6 +1044,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 24px;
   line-height: 1.4;
   letter-spacing: -0.04em;
@@ -1073,6 +1083,7 @@
   background: var(--learning-brand-secondary);
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -1104,6 +1115,7 @@
   background: var(--learning-surface-default);
   color: var(--learning-text-primary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 32px;
   line-height: 1.4;
   box-shadow: none;
@@ -1273,6 +1285,7 @@
   background: var(--learning-option-bg);
   color: var(--learning-option-text);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: -0.03em;
@@ -1325,6 +1338,7 @@
   padding: 14px 10px;
   border-radius: 20px;
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 18px;
   line-height: 1.35;
   text-align: center;
@@ -1337,7 +1351,7 @@
 
 .learning-publish-body[data-page="learning-passage-mc"] .question-block__title {
   font-family: var(--font-body-eb);
-  font-weight: 400;
+  font-weight: 800;
   font-size: 22px;
   line-height: 1.55;
   letter-spacing: -0.04em;
@@ -1353,6 +1367,7 @@
   padding: 14px 18px;
   border-radius: 18px;
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 18px;
   line-height: 1.55;
 }
@@ -1490,6 +1505,7 @@
   padding: 12px;
   border-radius: 12px;
   font-family: var(--font-body-bold);
+  font-weight: 800;
   text-align: center;
 }
 
@@ -1561,6 +1577,7 @@
   background: var(--learning-option-bg);
   color: var(--learning-option-text);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 44px;
   line-height: 1;
 }
@@ -1744,6 +1761,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 22px;
   line-height: 1.35;
   letter-spacing: -0.04em;
@@ -1754,6 +1772,7 @@
   margin: 12px 0 0;
   color: var(--learning-text-secondary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.6;
   letter-spacing: -0.02em;
@@ -1772,6 +1791,7 @@
   border-radius: 18px;
   border: 1px solid var(--learning-brand-primary-soft);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 18px;
   line-height: 1;
   transition:
@@ -1838,6 +1858,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-heading-size);
   line-height: var(--learning-type-heading-line);
   letter-spacing: -0.04em;
@@ -1878,6 +1899,7 @@
   border-radius: 12px;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: -0.04em;
@@ -1910,6 +1932,7 @@
 .result-summary__label {
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: -0.04em;
@@ -1918,6 +1941,7 @@
 .result-summary__value {
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 40px;
   line-height: 1.2;
   letter-spacing: -0.04em;
@@ -1941,6 +1965,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -1994,6 +2019,7 @@
 .result-stage-item__score {
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: -0.04em;
@@ -2022,6 +2048,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -2056,6 +2083,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-display-size);
   line-height: var(--learning-type-display-line);
 }
@@ -2231,6 +2259,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-display-xl-size);
   line-height: var(--learning-type-display-xl-line);
   letter-spacing: -0.04em;
@@ -2240,6 +2269,7 @@
   margin: 0;
   color: var(--learning-matching-pair-a);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-heading-size);
   line-height: var(--learning-type-heading-line);
   letter-spacing: -0.04em;
@@ -2254,6 +2284,7 @@
 .learning-publish-body[data-page="diagnostic-complete"] .complete-card__subtitle {
   color: var(--learning-text-brand);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.6;
   letter-spacing: -0.02em;
@@ -2274,6 +2305,7 @@
   margin: 0;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -2282,6 +2314,7 @@
   margin: 0;
   color: var(--learning-brand-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   line-height: 0;
   letter-spacing: -0.04em;
   width: 100%;
@@ -2322,6 +2355,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 20px;
   line-height: 1.4;
   letter-spacing: -0.04em;
@@ -2376,6 +2410,7 @@
 
 .hanja-modal__meaning-sound strong {
   font-family: var(--font-body-eb);
+  font-weight: 800;
 }
 
 .hanja-modal__meta {
@@ -2444,6 +2479,7 @@
   background: var(--learning-brand-primary-soft);
   color: var(--learning-text-tertiary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.5;
   letter-spacing: 0.02em;
@@ -2459,6 +2495,7 @@
   margin: 0 0 2px;
   color: var(--learning-text-secondary);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.5;
   text-align: center;
@@ -2470,6 +2507,7 @@
   padding: 4px 8px 2px;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-subheading-size);
   line-height: 1.5;
   letter-spacing: -0.03em;
@@ -2505,6 +2543,7 @@
   background: var(--learning-brand-primary);
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -2589,6 +2628,7 @@
   background: var(--learning-surface-raised);
   color: var(--learning-text-secondary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -2657,6 +2697,7 @@
   background: var(--learning-brand-primary);
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-bold);
+  font-weight: 800;
   font-size: 15px;
   line-height: 1.5;
   box-shadow: var(--learning-shadow-sheet);
@@ -2860,7 +2901,7 @@
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-bold);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 /* 무대: 스켈레톤 영상 재생 (원본·재생성: tools/tutorial-capture) */
@@ -2898,7 +2939,7 @@
   color: var(--learning-text-secondary);
   font-family: var(--font-body-bold);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
 }
 

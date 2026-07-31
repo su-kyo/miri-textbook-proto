@@ -1,4 +1,4 @@
-import { getHanjaCharacterRows, getLessonMeta, getVocabCardDeck, getVocabMatchingPairs } from "../../shared/js/learning-adapter.js?v=20260731c";
+import { getHanjaCharacterRows, getLessonMeta, getVocabCardDeck, getVocabMatchingPairs } from "../../shared/js/learning-adapter.js?v=20260731e";
 import {
   escapeHtml,
   formatCurriculum,
@@ -10,7 +10,7 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260731c";
+} from "../../shared/js/learning-ui-utils.js?v=20260731e";
 
 const pageId = document.body.dataset.page;
 

@@ -102,9 +102,10 @@
 
   /* Typography */
   --font-display: "MaruBuri", "MaruBuriLight", "Times New Roman", serif;
-  --font-body: "NanumSquareRound", "Apple SD Gothic Neo", sans-serif;
-  --font-body-bold: "NanumSquareRoundEB", "NanumSquareRoundB", "NanumSquareRound", "Apple SD Gothic Neo", sans-serif;
-  --font-body-eb: "NanumSquareRoundEB", "NanumSquareRoundB", "NanumSquareRound", "Apple SD Gothic Neo", sans-serif;
+  /* Pretendard는 굵기를 font-weight로 지정한다. 굵은 계열 토큰을 쓰는 규칙은 font-weight를 함께 선언할 것 */
+  --font-body: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", sans-serif;
+  --font-body-bold: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", sans-serif;
+  --font-body-eb: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", sans-serif;
   --font-passage: "MaruBuri", "MaruBuriLight", "Times New Roman", serif;
   --font-passage-bold: "MaruBuriBold", "MaruBuriSemiBold", "MaruBuri", "Times New Roman", serif;
   --font-hanja: "Noto Serif KR", "Times New Roman", serif;

@@ -1,16 +1,16 @@
-import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260731c";
+import { DEFAULT_AVATAR, HOME_CONSTELLATION_COUNT, HOME_PROFILE, NAV_ITEMS, PAGE_TITLES } from "./app-config.js?v=20260731e";
 import {
   buildConstellationCatalogCards,
   buildHomeConstellationCards,
   getConstellationById,
   getInitialHomeConstellations,
   loadConstellationCatalog,
-} from "./constellation-adapter.js?v=20260731c";
-import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260731c";
-import { resolveProjectUrl } from "./data-loader.js?v=20260731c";
-import { getLessonMeta } from "./learning-adapter.js?v=20260731c";
-import { vibrate } from "./haptics.js?v=20260731c";
-import { escapeHtml } from "./learning-ui-utils.js?v=20260731c";
+} from "./constellation-adapter.js?v=20260731e";
+import { buildAvatarMarkup, getAvatarPreviewAssetPath } from "./avatar-utils.js?v=20260731e";
+import { resolveProjectUrl } from "./data-loader.js?v=20260731e";
+import { getLessonMeta } from "./learning-adapter.js?v=20260731e";
+import { vibrate } from "./haptics.js?v=20260731e";
+import { escapeHtml } from "./learning-ui-utils.js?v=20260731e";
 
 function routePrefix(mode) {
   if (mode === "prototype") {

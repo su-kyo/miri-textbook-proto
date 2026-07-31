@@ -1,4 +1,4 @@
-import { loadLearningContentRaw } from "./data-loader.js?v=20260731c";
+import { loadLearningContentRaw } from "./data-loader.js?v=20260731e";
 
 let cachedBundle = null;
 

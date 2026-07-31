@@ -85,6 +85,7 @@
 
 .learning-header__title {
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-subheading-size);
   line-height: var(--learning-type-subheading-line);
   color: var(--learning-text-primary);
@@ -110,6 +111,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-label-size);
   line-height: var(--learning-type-label-line);
   color: var(--learning-text-primary);
@@ -223,6 +225,7 @@
 
 .learning-step-info strong {
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-label-size);
   line-height: var(--learning-type-label-line);
 }
@@ -299,6 +302,7 @@
   background: var(--learning-brand-primary);
   color: var(--learning-text-on-brand);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-cta-size);
   line-height: var(--learning-type-cta-line);
   opacity: 0.3;
@@ -337,6 +341,7 @@
   background: var(--learning-surface-default);
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: 20px;
   line-height: 1;
 }
@@ -419,6 +424,7 @@
   text-align: center;
   color: var(--learning-text-primary);
   font-family: var(--font-body-eb);
+  font-weight: 800;
   font-size: var(--learning-type-hanja-compound-size);
   line-height: var(--learning-type-hanja-compound-line);
 }

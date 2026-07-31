@@ -9,7 +9,7 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js?v=20260731c";
+} from "../../shared/js/learning-adapter.js?v=20260731e";
 import {
   escapeHtml,
   formatCurriculum,
@@ -21,8 +21,8 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260731c";
-import { initLetterTutorial } from "./letter-tutorial.js?v=20260731c";
+} from "../../shared/js/learning-ui-utils.js?v=20260731e";
+import { initLetterTutorial } from "./letter-tutorial.js?v=20260731e";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
