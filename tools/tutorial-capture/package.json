@@ -1,0 +1,9 @@
+{
+  "name": "tutorial-capture",
+  "private": true,
+  "type": "module",
+  "description": "글자 맞추기 튜토리얼 CSS 애니메이션을 MP4로 캡처하는 도구",
+  "dependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}

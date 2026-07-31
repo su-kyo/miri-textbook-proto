@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>튜토리얼 영상 캡처 무대</title>
+    <link rel="stylesheet" href="../../shared/css/tokens.css" />
+    <link rel="stylesheet" href="./tutorial-stage.css" />
+    <style>
+      /* 캡처 전용: 영상은 풀블리드 사각형으로 뽑고, 라운딩은 재생하는 쪽에서 처리한다 */
+      body {
+        margin: 0;
+      }
+
+      .letter-tutorial__stage {
+        border-radius: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="letter-tutorial__stage" data-stage></div>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const scene = params.get("scene") === "swap" ? "swap" : "fill";
+      if (params.get("theme") === "dark") {
+        document.body.classList.add("theme-dark");
+      }
+
+      const CHECK_ICON = `
+        <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+          <path d="M2 6.2 4.6 8.8 10 3.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      `;
+
+      const SWAP_SCENE = `
+        <div class="letter-tutorial__scene letter-tutorial__scene--swap">
+          <div class="tut-meaning-box">
+            <span class="tut-bar"></span>
+            <span class="tut-bar"></span>
+          </div>
+          <div class="tut-tile tut-tile--b"><span class="tut-mark tut-mark--b"></span></div>
+          <div class="tut-tile tut-tile--a"><span class="tut-mark tut-mark--a"></span></div>
+          <div class="tut-tile tut-tile--c"><span class="tut-mark tut-mark--c"></span></div>
+          <div class="tut-pointer"><span class="tut-ring"></span></div>
+          <div class="tut-check">${CHECK_ICON}</div>
+        </div>
+      `;
+
+      const FILL_SCENE = `
+        <div class="letter-tutorial__scene letter-tutorial__scene--fill letter-tutorial__scene--g34">
+          <span class="tut-bar tut-meaning-bar"></span>
+          <div class="tut-blank tut-blank--1"><span class="tut-fill"><span class="tut-mark tut-mark--a"></span></span></div>
+          <div class="tut-blank tut-blank--2"><span class="tut-fill"><span class="tut-mark tut-mark--b"></span></span></div>
+          <div class="tut-blank tut-blank--3"><span class="tut-fill"><span class="tut-mark tut-mark--c"></span></span></div>
+          <div class="tut-tile tut-tile--a"><span class="tut-mark tut-mark--a"></span></div>
+          <div class="tut-tile tut-tile--d"><span class="tut-mark tut-mark--d"></span></div>
+          <div class="tut-tile tut-tile--b"><span class="tut-mark tut-mark--b"></span></div>
+          <div class="tut-tile tut-tile--e"><span class="tut-mark tut-mark--e"></span></div>
+          <div class="tut-tile tut-tile--c"><span class="tut-mark tut-mark--c"></span></div>
+          <div class="tut-pointer"><span class="tut-ring"></span></div>
+          <div class="tut-check">${CHECK_ICON}</div>
+        </div>
+      `;
+
+      const stage = document.querySelector("[data-stage]");
+      if (scene === "fill") {
+        stage.classList.add("letter-tutorial__stage--grade34");
+      }
+      stage.innerHTML = scene === "swap" ? SWAP_SCENE : FILL_SCENE;
+    </script>
+  </body>
+</html>

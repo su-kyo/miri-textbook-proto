@@ -9,7 +9,7 @@ import {
   getVocabMatchingPairs,
   getVocabMeaningQuestions,
   getVocabularyList,
-} from "../../shared/js/learning-adapter.js?v=20260731b";
+} from "../../shared/js/learning-adapter.js?v=20260731c";
 import {
   escapeHtml,
   formatCurriculum,
@@ -21,8 +21,8 @@ import {
   isLongText,
   setTheme,
   TAP_ICON,
-} from "../../shared/js/learning-ui-utils.js?v=20260731b";
-import { initLetterTutorial } from "./letter-tutorial.js?v=20260731b";
+} from "../../shared/js/learning-ui-utils.js?v=20260731c";
+import { initLetterTutorial } from "./letter-tutorial.js?v=20260731c";
 
 const pageId = document.body.dataset.page;
 const initialQuery = new URLSearchParams(window.location.search);
@@ -1909,6 +1909,10 @@ async function initVocabLetter() {
   initAssembleDrag();
   render();
   initLetterTutorial({ variant, query });
+
+  document.querySelector("[data-letter-tutorial-open]")?.addEventListener("click", () => {
+    initLetterTutorial({ variant, manual: true });
+  });
 }
 
 async function initVocabMc() {

@@ -1,0 +1,718 @@
+/* 글자 맞추기 튜토리얼 무대 (영상 원본).
+   asset/video/tutorial/*.mp4 는 이 CSS 애니메이션을 프레임 캡처해 인코딩한 결과물이다.
+   디자인 수정 시 여기를 고친 뒤 capture.mjs 를 다시 실행한다. 런타임에서는 로드되지 않는다. */
+
+.letter-tutorial__stage {
+  position: relative;
+  width: 280px;
+  height: 180px;
+  overflow: hidden;
+  background: var(--learning-bg-default);
+}
+
+.letter-tutorial__stage--grade34 {
+  --tut-dy: -96px;
+}
+
+.letter-tutorial__scene {
+  position: absolute;
+  inset: 0;
+}
+
+.letter-tutorial__scene--swap {
+  animation: tut-scene-swap 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--fill {
+  animation: tut-scene-fill 5600ms linear infinite;
+}
+
+.tut-bar {
+  position: absolute;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--learning-border-medium);
+}
+
+.tut-tile {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--learning-border-medium);
+  border-radius: 10px;
+  background: var(--learning-surface-default);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tut-blank {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px dashed var(--learning-border-medium);
+  border-radius: 10px;
+}
+
+.tut-mark {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--learning-border-medium);
+}
+
+.tut-mark--a {
+  width: 24px;
+}
+
+.tut-mark--b {
+  width: 12px;
+}
+
+.tut-mark--c {
+  width: 18px;
+}
+
+.tut-mark--d {
+  width: 20px;
+}
+
+.tut-mark--e {
+  width: 10px;
+}
+
+.tut-fill {
+  display: flex;
+  opacity: 0;
+}
+
+.tut-pointer {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--learning-brand-primary);
+  opacity: 0;
+}
+
+.tut-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: var(--learning-brand-primary);
+  opacity: 0;
+}
+
+.tut-check {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--learning-brand-primary);
+  color: var(--learning-text-on-brand);
+  opacity: 0;
+}
+
+.tut-check svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* 무대 배치: 1~2학년(재정렬) */
+
+.letter-tutorial__scene--swap .tut-meaning-box {
+  position: absolute;
+  left: 20px;
+  top: 18px;
+  width: 240px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--learning-brand-primary-soft);
+}
+
+.letter-tutorial__scene--swap .tut-meaning-box .tut-bar:nth-child(1) {
+  left: 30px;
+  top: 14px;
+  width: 180px;
+}
+
+.letter-tutorial__scene--swap .tut-meaning-box .tut-bar:nth-child(2) {
+  left: 60px;
+  top: 32px;
+  width: 120px;
+}
+
+.letter-tutorial__scene--swap .tut-tile {
+  top: 110px;
+}
+
+.letter-tutorial__scene--swap .tut-tile--b {
+  left: 64px;
+  animation: tut-swap-b 4200ms linear infinite, tut-swap-flash 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--swap .tut-tile--a {
+  left: 118px;
+  animation: tut-swap-a 4200ms linear infinite, tut-swap-flash 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--swap .tut-tile--c {
+  left: 172px;
+  animation: tut-swap-flash 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--swap .tut-pointer {
+  left: 131px;
+  top: 123px;
+  animation: tut-pointer-swap 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--swap .tut-ring {
+  animation: tut-ring-swap 4200ms linear infinite;
+}
+
+.letter-tutorial__scene--swap .tut-check {
+  left: 128px;
+  top: 76px;
+  animation: tut-check-swap 4200ms linear infinite;
+}
+
+/* 무대 배치: 3~6학년(빈칸 채우기, g34 레이아웃 공용) */
+
+.letter-tutorial__scene--fill .tut-tile {
+  top: 116px;
+}
+
+.letter-tutorial__scene--fill .tut-tile--a {
+  left: 14px;
+  --tut-dx: 56px;
+  animation: tut-fill-a 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-tile--d {
+  left: 66px;
+}
+
+.letter-tutorial__scene--fill .tut-tile--b {
+  left: 118px;
+  --tut-dx: 0px;
+  animation: tut-fill-b 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-tile--e {
+  left: 170px;
+}
+
+.letter-tutorial__scene--fill .tut-tile--c {
+  left: 222px;
+  --tut-dx: -56px;
+  animation: tut-fill-c 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--1 {
+  left: 72px;
+  animation: tut-blank-1 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--2 {
+  left: 120px;
+  animation: tut-blank-2 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--3 {
+  left: 168px;
+  animation: tut-blank-3 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--1 .tut-fill {
+  animation: tut-drop-1 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--2 .tut-fill {
+  animation: tut-drop-2 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-blank--3 .tut-fill {
+  animation: tut-drop-3 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-pointer {
+  left: 27px;
+  top: 129px;
+  animation: tut-pointer-fill 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-ring {
+  animation: tut-ring-fill 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--fill .tut-check {
+  left: 248px;
+  top: 8px;
+  animation: tut-check-fill 5600ms linear infinite;
+}
+
+.letter-tutorial__scene--g34 .tut-blank {
+  top: 22px;
+}
+
+.letter-tutorial__scene--g34 .tut-meaning-bar {
+  left: 60px;
+  top: 76px;
+  width: 160px;
+}
+
+/* 애니메이션: 1~2학년(재정렬) — 4.2s 루프 */
+
+@keyframes tut-scene-swap {
+  0% {
+    opacity: 0;
+  }
+
+  8%,
+  92% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tut-swap-a {
+  0%,
+  18% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  21% {
+    transform: translate(0, -4px) scale(1.06);
+  }
+
+  40% {
+    transform: translate(-54px, -4px) scale(1.06);
+  }
+
+  44%,
+  100% {
+    transform: translate(-54px, 0) scale(1);
+  }
+}
+
+/* 필수 연출: 끌고 오는 타일에 자리를 내주며 옆 타일이 비켜난다 */
+@keyframes tut-swap-b {
+  0%,
+  26% {
+    transform: translate(0, 0);
+  }
+
+  34%,
+  100% {
+    transform: translate(54px, 0);
+  }
+}
+
+@keyframes tut-swap-flash {
+  0%,
+  50% {
+    border-color: var(--learning-border-medium);
+  }
+
+  54%,
+  92% {
+    border-color: var(--learning-brand-primary);
+  }
+}
+
+@keyframes tut-pointer-swap {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translate(34px, 30px) scale(1);
+  }
+
+  18% {
+    opacity: 0.85;
+    transform: translate(0, 0) scale(1);
+  }
+
+  21% {
+    transform: translate(0, 0) scale(0.8);
+  }
+
+  40% {
+    transform: translate(-54px, 0) scale(0.8);
+  }
+
+  44% {
+    opacity: 0.85;
+    transform: translate(-54px, 0) scale(1);
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+    transform: translate(-54px, 0) scale(1);
+  }
+}
+
+@keyframes tut-ring-swap {
+  0%,
+  20% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  21%,
+  40% {
+    opacity: 0.35;
+    transform: scale(1.6);
+  }
+
+  42%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes tut-check-swap {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+  58%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 애니메이션: 3~6학년(빈칸 채우기) — 5.6s 루프 */
+
+@keyframes tut-scene-fill {
+  0% {
+    opacity: 0;
+  }
+
+  6%,
+  92% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tut-fill-a {
+  0%,
+  11% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  13% {
+    transform: translate(0, -6px) scale(1.06);
+  }
+
+  22% {
+    opacity: 1;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1.06);
+  }
+
+  23%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1);
+  }
+}
+
+@keyframes tut-fill-b {
+  0%,
+  27% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  29% {
+    transform: translate(0, -6px) scale(1.06);
+  }
+
+  36% {
+    opacity: 1;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1.06);
+  }
+
+  37%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1);
+  }
+}
+
+@keyframes tut-fill-c {
+  0%,
+  41% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  43% {
+    transform: translate(0, -6px) scale(1.06);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1.06);
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--tut-dx), var(--tut-dy)) scale(1);
+  }
+}
+
+/* 필수 연출: 타일이 겹치는 동안 받는 빈칸이 하이라이트된다 */
+@keyframes tut-blank-1 {
+  0%,
+  17% {
+    border-color: var(--learning-border-medium);
+  }
+
+  18%,
+  22% {
+    border-color: var(--learning-brand-primary);
+  }
+
+  24%,
+  55% {
+    border-color: var(--learning-border-medium);
+  }
+
+  58%,
+  92% {
+    border-color: var(--learning-brand-primary);
+  }
+}
+
+@keyframes tut-blank-2 {
+  0%,
+  31% {
+    border-color: var(--learning-border-medium);
+  }
+
+  32%,
+  36% {
+    border-color: var(--learning-brand-primary);
+  }
+
+  38%,
+  55% {
+    border-color: var(--learning-border-medium);
+  }
+
+  58%,
+  92% {
+    border-color: var(--learning-brand-primary);
+  }
+}
+
+@keyframes tut-blank-3 {
+  0%,
+  45% {
+    border-color: var(--learning-border-medium);
+  }
+
+  46%,
+  50% {
+    border-color: var(--learning-brand-primary);
+  }
+
+  52%,
+  55% {
+    border-color: var(--learning-border-medium);
+  }
+
+  58%,
+  92% {
+    border-color: var(--learning-brand-primary);
+  }
+}
+
+@keyframes tut-drop-1 {
+  0%,
+  22% {
+    opacity: 0;
+  }
+
+  24%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes tut-drop-2 {
+  0%,
+  36% {
+    opacity: 0;
+  }
+
+  38%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes tut-drop-3 {
+  0%,
+  50% {
+    opacity: 0;
+  }
+
+  52%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes tut-pointer-fill {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1);
+  }
+
+  6%,
+  10% {
+    opacity: 0.85;
+    transform: translate(0, 0) scale(1);
+  }
+
+  11% {
+    transform: translate(0, 0) scale(0.8);
+  }
+
+  22% {
+    transform: translate(56px, var(--tut-dy)) scale(0.8);
+  }
+
+  24% {
+    transform: translate(56px, var(--tut-dy)) scale(1);
+  }
+
+  26% {
+    transform: translate(104px, 0) scale(1);
+  }
+
+  27% {
+    transform: translate(104px, 0) scale(0.8);
+  }
+
+  36% {
+    transform: translate(104px, var(--tut-dy)) scale(0.8);
+  }
+
+  38% {
+    transform: translate(104px, var(--tut-dy)) scale(1);
+  }
+
+  40% {
+    transform: translate(208px, 0) scale(1);
+  }
+
+  41% {
+    transform: translate(208px, 0) scale(0.8);
+  }
+
+  50% {
+    transform: translate(152px, var(--tut-dy)) scale(0.8);
+  }
+
+  52% {
+    opacity: 0.85;
+    transform: translate(152px, var(--tut-dy)) scale(1);
+  }
+
+  56%,
+  100% {
+    opacity: 0;
+    transform: translate(152px, var(--tut-dy)) scale(1);
+  }
+}
+
+@keyframes tut-ring-fill {
+  0%,
+  10% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  11%,
+  22% {
+    opacity: 0.35;
+    transform: scale(1.6);
+  }
+
+  23%,
+  26% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  27%,
+  36% {
+    opacity: 0.35;
+    transform: scale(1.6);
+  }
+
+  37%,
+  40% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  41%,
+  50% {
+    opacity: 0.35;
+    transform: scale(1.6);
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes tut-check-fill {
+  0%,
+  56% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+  63%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
